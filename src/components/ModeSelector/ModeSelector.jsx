@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BookOpen, Layers, Zap, Music, Star, Trophy, Settings as SettingsIcon } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore, CHARACTERS } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Settings from '../Settings/Settings'
 
@@ -56,6 +56,8 @@ function DifficultyStars({ level }) {
 function ModeCard({ mode, onSelect, savedProgress }) {
   const Icon = mode.icon
   const progress = savedProgress[mode.id]
+  const selectedCharacter = useGameStore((s) => s.selectedCharacter)
+  const charInfo = CHARACTERS.find((c) => c.id === selectedCharacter)
   const accuracy = progress.totalAnswered > 0
     ? Math.round((progress.correctAnswers / progress.totalAnswered) * 100)
     : null
@@ -76,7 +78,12 @@ function ModeCard({ mode, onSelect, savedProgress }) {
         <div className={`p-3 rounded-2xl bg-gradient-to-br ${mode.color}`}>
           <Icon className="w-7 h-7 text-white" strokeWidth={1.8} />
         </div>
-        <DifficultyStars level={mode.difficulty} />
+        <div className="flex items-center gap-2">
+          {mode.id === 'beginner' && charInfo && (
+            <span className="text-lg" title={charInfo.label}>{charInfo.emoji}</span>
+          )}
+          <DifficultyStars level={mode.difficulty} />
+        </div>
       </div>
 
       {/* Title & description */}

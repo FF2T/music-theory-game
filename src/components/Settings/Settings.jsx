@@ -1,11 +1,23 @@
-import { X, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
+import { X, Sun, Moon, Volume2, VolumeX, Sliders } from 'lucide-react'
+import { useGameStore, CHARACTERS } from '../../store/gameStore'
+
+const PENALTY_OPTIONS = [
+  { value: 0,  label: '0 (pas de malus)' },
+  { value: -1, label: '-1 (très facile)' },
+  { value: -2, label: '-2 (recommandé)' },
+  { value: -3, label: '-3 (difficile)' },
+  { value: -5, label: '-5 (très difficile)' },
+]
 
 export default function Settings({ onClose }) {
   const theme = useGameStore((s) => s.theme)
   const setTheme = useGameStore((s) => s.setTheme)
   const audioEnabled = useGameStore((s) => s.audioEnabled)
   const toggleAudio = useGameStore((s) => s.toggleAudio)
+  const penaltyValue = useGameStore((s) => s.penaltyValue)
+  const setPenaltyValue = useGameStore((s) => s.setPenaltyValue)
+  const selectedCharacter = useGameStore((s) => s.selectedCharacter)
+  const setCharacter = useGameStore((s) => s.setCharacter)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -25,8 +37,8 @@ export default function Settings({ onClose }) {
           </button>
         </div>
 
-        {/* Theme */}
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* Theme */}
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
               Apparence
@@ -74,6 +86,63 @@ export default function Settings({ onClose }) {
               {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               {audioEnabled ? 'Activé' : 'Désactivé'}
             </button>
+          </div>
+
+          {/* Scoring separator */}
+          <div className="border-t border-gray-200 dark:border-white/10 pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sliders className="w-4 h-4 text-primary-500" />
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Scoring
+              </label>
+            </div>
+
+            {/* Penalty value */}
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Malus par mauvaise réponse (niveau personnage)
+              </p>
+              <div className="grid grid-cols-1 gap-1.5">
+                {PENALTY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setPenaltyValue(opt.value)}
+                    className={[
+                      'px-3 py-2 rounded-lg text-xs font-medium text-left transition-all',
+                      penaltyValue === opt.value
+                        ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 ring-2 ring-primary-400'
+                        : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10',
+                    ].join(' ')}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Character selector */}
+          <div className="border-t border-gray-200 dark:border-white/10 pt-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+              Compagnon (mode débutant)
+            </label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {CHARACTERS.map((char) => (
+                <button
+                  key={char.id}
+                  onClick={() => setCharacter(char.id)}
+                  className={[
+                    'flex flex-col items-center gap-1 py-2 px-1 rounded-lg text-xs font-medium transition-all',
+                    selectedCharacter === char.id
+                      ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 ring-2 ring-primary-400'
+                      : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10',
+                  ].join(' ')}
+                >
+                  <span className="text-xl">{char.emoji}</span>
+                  {char.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

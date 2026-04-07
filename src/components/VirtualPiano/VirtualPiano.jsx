@@ -1,22 +1,28 @@
 import { useState, useCallback } from 'react'
 import { useAudio } from '../../hooks/useAudio'
 
+const NOTE_LABELS = ['Do', 'Do#', 'Ré', 'Ré#', 'Mi', 'Fa', 'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si']
+
 /**
  * Interactive piano keyboard.
  *
  * Props:
- *   startMidi     : first MIDI note (default 60 = C4)
- *   octaves       : number of octaves to display (default 2)
- *   onNoteClick   : (midi: number) => void
- *   highlightMidi : number[]  — keys to highlight (e.g. correct answer)
- *   disabledMidi  : number[]  — keys visually greyed-out
+ *   startMidi      : first MIDI note (default 60 = C4)
+ *   octaves        : number of octaves to display (default 2)
+ *   onNoteClick    : (midi: number) => void
+ *   highlightMidi  : number[]  — keys to highlight green (e.g. correct answer)
+ *   wrongMidi      : number[]  — keys to highlight red (wrong answer feedback)
+ *   disabledMidi   : number[]  — keys visually greyed-out
+ *   showLabels     : boolean   — show note names on white keys
  */
 export default function VirtualPiano({
   startMidi = 60,
   octaves = 2,
   onNoteClick,
   highlightMidi = [],
+  wrongMidi = [],
   disabledMidi  = [],
+  showLabels = true,
 }) {
   const [pressedKeys, setPressedKeys] = useState(new Set())
   const { playNote } = useAudio()
@@ -56,57 +62,78 @@ export default function VirtualPiano({
   const whiteKeyWidth = 100 / whiteKeys.length // % of container width
 
   function blackLeftOffset(midi) {
-    // Find the preceding white key index
     let whiteIdx = 0
     for (let i = 0; i < whiteKeys.length; i++) {
       if (whiteKeys[i].midi < midi) whiteIdx = i
     }
-    return (whiteIdx + 0.65) * whiteKeyWidth
+    return (whiteIdx + 0.62) * whiteKeyWidth
   }
 
   const keyClass = (k) => {
-    const pressed    = pressedKeys.has(k.midi)
+    const pressed     = pressedKeys.has(k.midi)
     const highlighted = highlightMidi.includes(k.midi)
-    const disabled   = disabledMidi.includes(k.midi)
+    const wrong       = wrongMidi.includes(k.midi)
+    const disabled    = disabledMidi.includes(k.midi)
 
     if (k.isBlack) {
       return [
         'piano-key-black absolute',
-        pressed    ? '!bg-primary-700' : '',
-        highlighted ? '!bg-yellow-400' : '',
-        disabled   ? 'opacity-30 cursor-not-allowed' : '',
+        pressed     ? '!bg-primary-700' : '',
+        highlighted ? '!bg-green-400 !border-green-500' : '',
+        wrong       ? '!bg-red-400 !border-red-500' : '',
+        disabled    ? 'opacity-30 cursor-not-allowed' : '',
       ].filter(Boolean).join(' ')
     }
 
     return [
       'piano-key-white absolute',
-      pressed    ? '!bg-primary-200' : '',
-      highlighted ? '!bg-yellow-200' : '',
-      disabled   ? 'opacity-30 cursor-not-allowed' : '',
+      pressed     ? '!bg-primary-200' : '',
+      highlighted ? '!bg-green-200 !border-green-400' : '',
+      wrong       ? '!bg-red-200 !border-red-400' : '',
+      disabled    ? 'opacity-30 cursor-not-allowed' : '',
     ].filter(Boolean).join(' ')
   }
 
+  // Compute dynamic height based on octaves
+  const pianoHeight = octaves <= 1 ? 140 : 160
+
   return (
     <div
-      className="relative w-full select-none touch-none"
-      style={{ height: octaves <= 1 ? 110 : 130, maxWidth: 700 }}
+      className="relative w-full select-none touch-none mx-auto"
+      style={{ height: pianoHeight, maxWidth: 700 }}
     >
       {/* White keys */}
-      {whiteKeys.map((k, i) => (
-        <button
-          key={k.midi}
-          onMouseDown={() => handlePress(k.midi)}
-          onTouchStart={(e) => { e.preventDefault(); handlePress(k.midi) }}
-          className={keyClass(k)}
-          style={{
-            left:   `${i * whiteKeyWidth}%`,
-            width:  `${whiteKeyWidth - 0.5}%`,
-            top:    0,
-            bottom: 0,
-          }}
-          aria-label={`Note ${k.midi}`}
-        />
-      ))}
+      {whiteKeys.map((k, i) => {
+        const isHighlighted = highlightMidi.includes(k.midi)
+        const isWrong = wrongMidi.includes(k.midi)
+        return (
+          <button
+            key={k.midi}
+            onMouseDown={() => handlePress(k.midi)}
+            onTouchStart={(e) => { e.preventDefault(); handlePress(k.midi) }}
+            className={keyClass(k)}
+            style={{
+              left:   `${i * whiteKeyWidth}%`,
+              width:  `${whiteKeyWidth - 0.4}%`,
+              top:    0,
+              bottom: 0,
+              borderRadius: '0 0 8px 8px',
+            }}
+            aria-label={`Note ${NOTE_LABELS[k.noteIdx]}`}
+          >
+            {showLabels && (
+              <span
+                className={[
+                  'absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-semibold pointer-events-none select-none',
+                  isHighlighted ? 'text-green-700' : isWrong ? 'text-red-700' : 'text-gray-400 dark:text-gray-500',
+                ].join(' ')}
+              >
+                {NOTE_LABELS[k.noteIdx]}
+              </span>
+            )}
+          </button>
+        )
+      })}
 
       {/* Black keys (drawn on top) */}
       {blackKeys.map((k) => (
@@ -117,11 +144,12 @@ export default function VirtualPiano({
           className={keyClass(k)}
           style={{
             left:   `${blackLeftOffset(k.midi)}%`,
-            width:  `${whiteKeyWidth * 0.6}%`,
+            width:  `${whiteKeyWidth * 0.58}%`,
             top:    0,
-            height: '62%',
+            height: '60%',
+            borderRadius: '0 0 6px 6px',
           }}
-          aria-label={`Note # ${k.midi}`}
+          aria-label={`Note ${NOTE_LABELS[k.noteIdx]}`}
         />
       ))}
     </div>
