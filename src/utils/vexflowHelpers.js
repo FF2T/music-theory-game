@@ -114,8 +114,9 @@ export function drawNoteSequence(container, vexKeys, clef = 'treble', noteStates
   stave.addClef(clef)
   stave.setContext(context).draw()
 
+  const isDark = document.documentElement.classList.contains('dark')
   const palette = {
-    upcoming: '#9ca3af',
+    upcoming: isDark ? '#f3f4f6' : '#111827',
     current:  '#818cf8',
     correct:  '#22c55e',
     wrong:    '#ef4444',
