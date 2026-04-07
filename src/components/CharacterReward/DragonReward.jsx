@@ -263,7 +263,7 @@ export default function DragonReward({ level = 0 }) {
         {l >= 36 && l < 41 && 'Il déploie ses ailes et crache du feu !'}
         {l >= 41 && l < 46 && 'Des gemmes brillent autour de lui !'}
         {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '\u2728 Dragon Légendaire ! Gardien des mélodies ! \u2728'}
+        {l >= 50 && '✨ Dragon Légendaire ! Gardien des mélodies ! ✨'}
       </p>
     </div>
   )

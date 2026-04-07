@@ -25,7 +25,7 @@ export default function CharacterSelector({ onSelect }) {
           Choisis ton compagnon !
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-          Il grandira \u00e0 chaque bonne r\u00e9ponse. Atteins 50 points pour obtenir son badge !
+          Il grandira à chaque bonne réponse. Atteins 50 points pour obtenir son badge !
         </p>
       </div>
 
@@ -81,10 +81,10 @@ export default function CharacterSelector({ onSelect }) {
       {/* Difficulty selection */}
       <div className="text-center mb-4">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-          Difficult\u00e9
+          Difficulté
         </h3>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          Plus c'est difficile, plus le d\u00e9fi est grand !
+          Plus c'est difficile, plus le défi est grand !
         </p>
       </div>
 

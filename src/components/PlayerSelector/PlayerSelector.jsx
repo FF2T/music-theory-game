@@ -42,7 +42,7 @@ export default function PlayerSelector({ onSelect }) {
           Qui joue ?
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          S\u00e9lectionne ton profil pour commencer
+          Sélectionne ton profil pour commencer
         </p>
       </div>
 
@@ -110,7 +110,7 @@ export default function PlayerSelector({ onSelect }) {
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Pr\u00e9nom..."
+            placeholder="Prénom..."
             className="flex-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             maxLength={20}
           />

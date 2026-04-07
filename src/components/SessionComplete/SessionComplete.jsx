@@ -61,7 +61,7 @@ export default function SessionComplete({ onContinue }) {
           {/* Congratulations */}
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2 animate-slide-up">
-              F\u00e9licitations {player?.name} !
+              Félicitations {player?.name} !
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
               Tu as obtenu le badge <span className="font-bold">{charInfo?.emoji} {charInfo?.label}</span> !
@@ -80,7 +80,7 @@ export default function SessionComplete({ onContinue }) {
             </div>
 
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <span>Difficult\u00e9 :</span>
+              <span>Difficulté :</span>
               <span className="font-semibold">{diffConfig.emoji} {diffConfig.label}</span>
             </div>
 
@@ -115,12 +115,12 @@ export default function SessionComplete({ onContinue }) {
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Crown className="w-6 h-6 text-yellow-500" />
                 <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                  L\u00c9GENDE
+                  LÉGENDE
                 </span>
                 <Crown className="w-6 h-6 text-yellow-500" />
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Tu as collect\u00e9 tous les badges ! Tu es un v\u00e9ritable Ma\u00eetre de la Musique !
+                Tu as collecté tous les badges ! Tu es un véritable Maître de la Musique !
               </p>
             </div>
           )}

@@ -15,8 +15,8 @@ const MODES = [
     color: 'from-emerald-600 to-teal-700',
     border: 'border-emerald-500/30 hover:border-emerald-400/60',
     glow: 'hover:shadow-emerald-500/20',
-    description: 'Lecture de notes en cl\u00e9 de sol et fa, identification sur piano virtuel',
-    topics: ['Notes Do\u2192Si', 'Cl\u00e9 de Sol & Fa', 'Piano interactif', '50 points = Badge'],
+    description: 'Lecture de notes en clé de sol et fa, identification sur piano virtuel',
+    topics: ['Notes Do→Si', 'Clé de Sol & Fa', 'Piano interactif', '50 points = Badge'],
     difficulty: 1,
     locked: false,
   },
@@ -27,20 +27,20 @@ const MODES = [
     color: 'from-blue-600 to-indigo-700',
     border: 'border-blue-500/30 hover:border-blue-400/60',
     glow: 'hover:shadow-blue-500/20',
-    description: 'Module en cours de d\u00e9veloppement',
+    description: 'Module en cours de développement',
     topics: ['Intervalles', 'Pentatonique Maj/min', 'Signatures rythmiques', 'Oreille musicale'],
     difficulty: 2,
     locked: true,
   },
   {
     id: 'advanced',
-    label: 'L\u00e9gende vivante',
+    label: 'Légende vivante',
     icon: Zap,
     color: 'from-violet-600 to-purple-700',
     border: 'border-violet-500/30 hover:border-violet-400/60',
     glow: 'hover:shadow-violet-500/20',
-    description: 'Module en cours de d\u00e9veloppement',
-    topics: ['7 Modes grecs', 'Accords 7e & 9e', 'Grille blues 12 bars', 'Harmonie avanc\u00e9e'],
+    description: 'Module en cours de développement',
+    topics: ['7 Modes grecs', 'Accords 7e & 9e', 'Grille blues 12 bars', 'Harmonie avancée'],
     difficulty: 3,
     locked: true,
   },
@@ -125,13 +125,13 @@ function ModeCard({ mode, onSelect, savedProgress }) {
         <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-white/10">
           <Trophy className="w-4 h-4 text-yellow-400 flex-shrink-0" />
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {progress.totalAnswered} r\u00e9ponses \u00b7 {accuracy}% correct \u00b7 Meilleure s\u00e9rie : {progress.bestStreak}
+            {progress.totalAnswered} réponses · {accuracy}% correct · Meilleure série : {progress.bestStreak}
           </span>
         </div>
       )}
 
       <div className="absolute right-6 bottom-6 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 text-xl">
-        {mode.locked ? '\u{1F512}' : '\u2192'}
+        {mode.locked ? '\u{1F512}' : '→'}
       </div>
     </button>
   )
@@ -164,7 +164,7 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
         <button
           onClick={() => setShowSettings(true)}
           className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-          title="Param\u00e8tres"
+          title="Paramètres"
         >
           <SettingsIcon className="w-5 h-5" />
         </button>
@@ -209,11 +209,11 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
           variant="ghost"
           size="sm"
           onClick={() => {
-            if (window.confirm('R\u00e9initialiser toute la progression ?')) resetAll()
+            if (window.confirm('Réinitialiser toute la progression ?')) resetAll()
           }}
           className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400"
         >
-          R\u00e9initialiser la progression
+          Réinitialiser la progression
         </Button>
       </div>
 

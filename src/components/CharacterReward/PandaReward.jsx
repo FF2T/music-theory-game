@@ -248,7 +248,7 @@ export default function PandaReward({ level = 0 }) {
         {l >= 36 && l < 41 && 'Il croque son bambou !'}
         {l >= 41 && l < 46 && 'Une forêt de bambou pousse !'}
         {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '\u2728 Panda Légendaire ! Maître du bambou ! \u2728'}
+        {l >= 50 && '✨ Panda Légendaire ! Maître du bambou ! ✨'}
       </p>
     </div>
   )

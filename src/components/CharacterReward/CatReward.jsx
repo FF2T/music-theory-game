@@ -275,7 +275,7 @@ export default function CatReward({ level = 0 }) {
         {l >= 36 && l < 41 && 'Il ronronne de bonheur !'}
         {l >= 41 && l < 46 && 'Il joue avec sa pelote !'}
         {l >= 46 && l < 50 && 'Presque un chat royal... encore un effort !'}
-        {l >= 50 && '\u2728 Chat Légendaire ! Miaou champion(ne) ! \u2728'}
+        {l >= 50 && '✨ Chat Légendaire ! Miaou champion(ne) ! ✨'}
       </p>
     </div>
   )

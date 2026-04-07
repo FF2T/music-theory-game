@@ -272,12 +272,12 @@ export default function DolphinReward({ level = 0 }) {
         {l >= 11 && l < 16 && 'Des nageoires pour glisser dans l\'eau !'}
         {l >= 16 && l < 21 && 'Un aileron dorsal majestueux !'}
         {l >= 21 && l < 26 && 'Une belle nageoire caudale !'}
-        {l >= 26 && l < 31 && 'Un \u0153il rieur et un sourire !'}
+        {l >= 26 && l < 31 && 'Un œil rieur et un sourire !'}
         {l >= 31 && l < 36 && 'Un magnifique bleu océan !'}
         {l >= 36 && l < 41 && 'Il fait des éclaboussures !'}
         {l >= 41 && l < 46 && 'Des bulles et des étoiles dansent !'}
         {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '\u2728 Dauphin Légendaire ! Prince des océans ! \u2728'}
+        {l >= 50 && '✨ Dauphin Légendaire ! Prince des océans ! ✨'}
       </p>
     </div>
   )

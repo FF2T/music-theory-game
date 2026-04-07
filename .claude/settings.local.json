@@ -10,7 +10,10 @@
       "Bash(npx netlify:*)",
       "Bash(gh run:*)",
       "Bash(gh api:*)",
-      "Bash(grep -E \"\\\\.\\(jsx|js|css|ts|tsx\\)$\")"
+      "Bash(grep -E \"\\\\.\\(jsx|js|css|ts|tsx\\)$\")",
+      "Bash(curl -s http://localhost:5199/)",
+      "Bash(curl -s http://localhost:5199/music-theory-game/)",
+      "Bash(python3 -c ':*)"
     ]
   }
 }

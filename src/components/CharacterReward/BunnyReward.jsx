@@ -269,7 +269,7 @@ export default function BunnyReward({ level = 0 }) {
         {l >= 36 && l < 41 && 'Son nez frétille de joie !'}
         {l >= 41 && l < 46 && 'Il grignote une carotte !'}
         {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '\u2728 Lapin Légendaire ! Roi de la prairie ! \u2728'}
+        {l >= 50 && '✨ Lapin Légendaire ! Roi de la prairie ! ✨'}
       </p>
     </div>
   )

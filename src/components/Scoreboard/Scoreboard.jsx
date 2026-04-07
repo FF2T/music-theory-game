@@ -36,7 +36,7 @@ export default function Scoreboard() {
       <div className="glass rounded-2xl p-4 sm:p-6 text-center">
         <Trophy className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
         <p className="text-sm text-gray-400 dark:text-gray-500">
-          Aucun badge obtenu pour le moment. Joue en mode d\u00e9butant pour d\u00e9bloquer des badges !
+          Aucun badge obtenu pour le moment. Joue en mode débutant pour débloquer des badges !
         </p>
       </div>
     )
@@ -73,7 +73,7 @@ export default function Scoreboard() {
                     <LegendName name={player.name} />
                     <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold">
                       <Crown className="w-3 h-3" />
-                      L\u00e9gende
+                      Légende
                     </span>
                   </>
                 ) : (

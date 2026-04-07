@@ -13,7 +13,7 @@ const NOTES_PER_STAFF = 4
 
 const TREBLE_BASE = [
   { vexKey: 'c/4', fr: 'Do',  midi: 60 },
-  { vexKey: 'd/4', fr: 'R\u00e9',  midi: 62 },
+  { vexKey: 'd/4', fr: 'Ré',  midi: 62 },
   { vexKey: 'e/4', fr: 'Mi',  midi: 64 },
   { vexKey: 'f/4', fr: 'Fa',  midi: 65 },
   { vexKey: 'g/4', fr: 'Sol', midi: 67 },
@@ -25,13 +25,13 @@ const TREBLE_EXTENDED = [
   { vexKey: 'a/3', fr: 'La',  midi: 57, ledger: true },
   { vexKey: 'b/3', fr: 'Si',  midi: 59, ledger: true },
   { vexKey: 'c/5', fr: 'Do',  midi: 72, ledger: true },
-  { vexKey: 'd/5', fr: 'R\u00e9',  midi: 74, ledger: true },
+  { vexKey: 'd/5', fr: 'Ré',  midi: 74, ledger: true },
   { vexKey: 'e/5', fr: 'Mi',  midi: 76, ledger: true },
 ]
 
 const BASS_BASE = [
   { vexKey: 'c/3', fr: 'Do',  midi: 48 },
-  { vexKey: 'd/3', fr: 'R\u00e9',  midi: 50 },
+  { vexKey: 'd/3', fr: 'Ré',  midi: 50 },
   { vexKey: 'e/3', fr: 'Mi',  midi: 52 },
   { vexKey: 'f/3', fr: 'Fa',  midi: 53 },
   { vexKey: 'g/3', fr: 'Sol', midi: 55 },
@@ -43,7 +43,7 @@ const BASS_EXTENDED = [
   { vexKey: 'a/2', fr: 'La',  midi: 45, ledger: true },
   { vexKey: 'b/2', fr: 'Si',  midi: 47, ledger: true },
   { vexKey: 'c/4', fr: 'Do',  midi: 60, ledger: true },
-  { vexKey: 'd/4', fr: 'R\u00e9',  midi: 62, ledger: true },
+  { vexKey: 'd/4', fr: 'Ré',  midi: 62, ledger: true },
 ]
 
 // ── Adaptive difficulty helpers ─────────────────────────────────────────────
@@ -360,14 +360,14 @@ export default function BeginnerMode() {
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           Identifie chaque note
           <span className="text-primary-600 dark:text-primary-300">
-            {' '}{'\u2014'} Cl\u00e9 de {clef === 'treble' ? 'Sol \u{1D11E}' : 'Fa \u{1D122}'}
+            {' '}{'—'} Clé de {clef === 'treble' ? 'Sol \u{1D11E}' : 'Fa \u{1D122}'}
           </span>
         </h2>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Clique un bouton ou joue la note au piano
           {showLedgerBadge && (
             <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-semibold">
-              + lignes suppl\u00e9mentaires
+              + lignes supplémentaires
             </span>
           )}
         </p>
