@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Trophy, Star, Crown, ArrowRight } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime } from '../../store/gameStore'
+import { Trophy, Star, Crown, Gauge, ArrowRight } from 'lucide-react'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import CharacterReward from '../CharacterReward/CharacterReward'
 
@@ -25,14 +25,13 @@ export default function SessionComplete({ onContinue }) {
   const record = playerRecords[currentPlayerId]?.badges?.[selectedCharacter]
   const elapsedMs = record?.time || (sessionStartTime ? Date.now() - sessionStartTime : 0)
 
-  // Check if legend
-  const badges = playerRecords[currentPlayerId]?.badges || {}
-  const badgeCount = Object.keys(badges).length
-  const isLegend = badgeCount >= CHARACTERS.length
+  // Check legend / race pilot status for current difficulty
+  const allBadges = playerRecords[currentPlayerId]?.badges || {}
+  const status = getPlayerStatus(allBadges, difficultyLevel)
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-3 sm:px-4 py-8 animate-fade-in">
-      {/* Confetti-like background */}
+      {/* Confetti */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
@@ -91,36 +90,57 @@ export default function SessionComplete({ onContinue }) {
             </div>
           </div>
 
-          {/* Progress toward legend */}
+          {/* Progress toward legend at this difficulty */}
           <div className="mb-6">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              Badges obtenus : {badgeCount}/{CHARACTERS.length}
+              Badges en {diffConfig.label} : {status.badgeCount}/{CHARACTERS.length}
             </p>
             <div className="flex justify-center gap-2">
               {CHARACTERS.map((c) => (
                 <span
                   key={c.id}
-                  className={badges[c.id] ? '' : 'grayscale opacity-30'}
+                  className={status.badges[c.id] ? '' : 'grayscale opacity-30'}
                   title={c.label}
                 >
                   {c.emoji}
                 </span>
               ))}
             </div>
+            {status.badgeCount > 0 && (
+              <p className="text-xs font-mono text-gray-400 dark:text-gray-500 mt-1">
+                Cumul : {formatTime(status.totalTime)}
+              </p>
+            )}
           </div>
 
           {/* Legend achievement */}
-          {isLegend && (
-            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 via-purple-100 to-pink-100 dark:from-yellow-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-yellow-300 dark:border-yellow-700/50 animate-slide-up">
+          {status.isLegend && (
+            <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-yellow-100 via-purple-100 to-pink-100 dark:from-yellow-900/20 dark:via-purple-900/20 dark:to-pink-900/20 border border-yellow-300 dark:border-yellow-700/50 animate-slide-up">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Crown className="w-6 h-6 text-yellow-500" />
                 <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                  LÉGENDE
+                  LÉGENDE {diffConfig.label.toUpperCase()}
                 </span>
                 <Crown className="w-6 h-6 text-yellow-500" />
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Tu as collecté tous les badges ! Tu es un véritable Maître de la Musique !
+                Tous les badges en {diffConfig.label} ! Bravo !
+              </p>
+            </div>
+          )}
+
+          {/* Race pilot achievement */}
+          {status.isRacePilot && (
+            <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-red-100 via-orange-100 to-yellow-100 dark:from-red-900/20 dark:via-orange-900/20 dark:to-yellow-900/20 border border-red-300 dark:border-red-700/50 animate-slide-up">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Gauge className="w-6 h-6 text-red-500" />
+                <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+                  PILOTE DE COURSE
+                </span>
+                <Gauge className="w-6 h-6 text-red-500" />
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                6 badges en moins de 6 minutes ! Tu es un vrai champion !
               </p>
             </div>
           )}

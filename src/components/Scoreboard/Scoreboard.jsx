@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Trophy, Crown } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime } from '../../store/gameStore'
+import { Trophy, Crown, Gauge } from 'lucide-react'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus } from '../../store/gameStore'
 
 function LegendName({ name }) {
   return (
@@ -15,30 +15,21 @@ const DIFF_KEYS = Object.keys(DIFFICULTY_CONFIGS)
 export default function Scoreboard() {
   const players = useGameStore((s) => s.players)
   const playerRecords = useGameStore((s) => s.playerRecords)
-  const [selectedDiff, setSelectedDiff] = useState('all')
+  const [selectedDiff, setSelectedDiff] = useState('normal')
 
-  // Build scoreboard data
+  const diffConfig = DIFFICULTY_CONFIGS[selectedDiff]
+
+  // Build scoreboard data for selected difficulty
   const playerData = players.map((player) => {
     const allBadges = playerRecords[player.id]?.badges || {}
-
-    // Filter badges by selected difficulty
-    const filteredBadges = {}
-    for (const [charId, record] of Object.entries(allBadges)) {
-      if (selectedDiff === 'all' || record.difficulty === selectedDiff) {
-        filteredBadges[charId] = record
-      }
-    }
-
-    const badgeCount = Object.keys(filteredBadges).length
-    const allBadgeCount = Object.keys(allBadges).length
-    const isLegend = allBadgeCount >= CHARACTERS.length
-    const totalTime = Object.values(filteredBadges).reduce((sum, r) => sum + r.time, 0)
-    return { ...player, records: filteredBadges, badgeCount, isLegend, totalTime }
+    const status = getPlayerStatus(allBadges, selectedDiff)
+    return { ...player, ...status }
   })
 
   // Sort: most badges first, then fastest total time
   playerData.sort((a, b) => {
     if (b.badgeCount !== a.badgeCount) return b.badgeCount - a.badgeCount
+    if (a.badgeCount === 0) return 0
     return a.totalTime - b.totalTime
   })
 
@@ -46,26 +37,13 @@ export default function Scoreboard() {
 
   return (
     <div className="glass rounded-2xl p-4 sm:p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-yellow-500" />
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tableau des scores</h3>
-        </div>
+      <div className="flex items-center gap-2 mb-4">
+        <Trophy className="w-5 h-5 text-yellow-500" />
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tableau des scores</h3>
       </div>
 
-      {/* Difficulty filter tabs */}
+      {/* Difficulty tabs */}
       <div className="flex flex-wrap gap-1.5 mb-4">
-        <button
-          onClick={() => setSelectedDiff('all')}
-          className={[
-            'px-2.5 py-1 rounded-lg text-xs font-semibold transition-all',
-            selectedDiff === 'all'
-              ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 ring-1 ring-primary-400'
-              : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10',
-          ].join(' ')}
-        >
-          Tous
-        </button>
         {DIFF_KEYS.map((key) => {
           const config = DIFFICULTY_CONFIGS[key]
           return (
@@ -88,10 +66,7 @@ export default function Scoreboard() {
       {activePlayers.length === 0 ? (
         <div className="text-center py-4">
           <p className="text-sm text-gray-400 dark:text-gray-500">
-            {selectedDiff === 'all'
-              ? 'Aucun badge obtenu pour le moment. Joue en mode Lecture de notes pour débloquer des badges !'
-              : `Aucun badge obtenu en ${DIFFICULTY_CONFIGS[selectedDiff]?.label ?? ''}.`
-            }
+            Aucun badge obtenu en {diffConfig.label}. Joue en mode Lecture de notes pour débloquer des badges !
           </p>
         </div>
       ) : (
@@ -101,9 +76,11 @@ export default function Scoreboard() {
               key={player.id}
               className={[
                 'flex items-start gap-3 p-3 rounded-xl transition-all',
-                player.isLegend
-                  ? 'bg-gradient-to-r from-yellow-50 to-purple-50 dark:from-yellow-900/10 dark:to-purple-900/10 border border-yellow-200 dark:border-yellow-800/30'
-                  : 'bg-gray-50 dark:bg-white/5',
+                player.isRacePilot
+                  ? 'bg-gradient-to-r from-red-50 via-yellow-50 to-orange-50 dark:from-red-900/10 dark:via-yellow-900/10 dark:to-orange-900/10 border border-red-200 dark:border-red-800/30'
+                  : player.isLegend
+                    ? 'bg-gradient-to-r from-yellow-50 to-purple-50 dark:from-yellow-900/10 dark:to-purple-900/10 border border-yellow-200 dark:border-yellow-800/30'
+                    : 'bg-gray-50 dark:bg-white/5',
               ].join(' ')}
             >
               {/* Rank */}
@@ -112,30 +89,45 @@ export default function Scoreboard() {
               </div>
 
               <div className="flex-1 min-w-0">
-                {/* Name + Legend */}
-                <div className="flex items-center gap-2 mb-1.5">
+                {/* Name + Status badges */}
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   {player.isLegend ? (
-                    <>
-                      <LegendName name={player.name} />
-                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold">
-                        <Crown className="w-3 h-3" />
-                        Légende
-                      </span>
-                    </>
+                    <LegendName name={player.name} />
                   ) : (
                     <span className="font-semibold text-gray-900 dark:text-white text-sm">
                       {player.name}
                     </span>
                   )}
+
+                  {player.isLegend && (
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold">
+                      <Crown className="w-3 h-3" />
+                      Légende
+                    </span>
+                  )}
+
+                  {player.isRacePilot && (
+                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[10px] font-bold">
+                      <Gauge className="w-3 h-3" />
+                      Pilote de course
+                    </span>
+                  )}
+
                   <span className="text-[10px] text-gray-400 dark:text-gray-500">
                     {player.badgeCount}/{CHARACTERS.length}
                   </span>
+
+                  {player.badgeCount > 0 && (
+                    <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
+                      cumul : {formatTime(player.totalTime)}
+                    </span>
+                  )}
                 </div>
 
                 {/* Badges */}
                 <div className="flex flex-wrap gap-1.5">
                   {CHARACTERS.map((char) => {
-                    const record = player.records[char.id]
+                    const record = player.badges[char.id]
                     if (!record) {
                       return (
                         <span
@@ -147,19 +139,15 @@ export default function Scoreboard() {
                         </span>
                       )
                     }
-                    const diffConfig = DIFFICULTY_CONFIGS[record.difficulty] || DIFFICULTY_CONFIGS.normal
                     return (
                       <span
                         key={char.id}
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 text-xs"
-                        title={`${char.label} - ${formatTime(record.time)} (${diffConfig.label})`}
+                        title={`${char.label} - ${formatTime(record.time)}`}
                       >
                         <span>{char.emoji}</span>
                         <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
                           {formatTime(record.time)}
-                        </span>
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500">
-                          {diffConfig.emoji}
                         </span>
                       </span>
                     )

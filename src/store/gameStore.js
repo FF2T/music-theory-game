@@ -77,6 +77,26 @@ export const DIFFICULTY_CONFIGS = {
   },
 }
 
+const RACE_PILOT_THRESHOLD_MS = 6 * 60 * 1000 // 6 minutes
+
+/**
+ * Check legend / race pilot status for a player at a given difficulty.
+ * Returns { isLegend, isRacePilot, badgeCount, totalTime }
+ */
+export function getPlayerStatus(playerBadges, difficulty) {
+  const matching = {}
+  for (const [charId, record] of Object.entries(playerBadges || {})) {
+    if (record.difficulty === difficulty) {
+      matching[charId] = record
+    }
+  }
+  const badgeCount = Object.keys(matching).length
+  const totalTime = Object.values(matching).reduce((sum, r) => sum + r.time, 0)
+  const isLegend = badgeCount >= CHARACTERS.length
+  const isRacePilot = isLegend && totalTime <= RACE_PILOT_THRESHOLD_MS
+  return { isLegend, isRacePilot, badgeCount, totalTime, badges: matching }
+}
+
 export function formatTime(ms) {
   const totalSeconds = Math.floor(ms / 1000)
   const minutes = Math.floor(totalSeconds / 60)
