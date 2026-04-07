@@ -121,6 +121,10 @@ export default function VirtualPiano({
             }}
             aria-label={`Note ${NOTE_LABELS[k.noteIdx]}`}
           >
+            {/* Middle C dot (Do serrure) */}
+            {k.midi === 60 && (
+              <span className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500 pointer-events-none ${showLabels ? 'bottom-7' : 'bottom-3'}`} />
+            )}
             {showLabels && (
               <span
                 className={[
