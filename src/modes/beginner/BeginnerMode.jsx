@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from 'react'
-import { Music2, RotateCcw } from 'lucide-react'
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
+import { Music2, RotateCcw, Timer } from 'lucide-react'
 import StaffDisplay from '../../components/StaffDisplay/StaffDisplay'
 import VirtualPiano from '../../components/VirtualPiano/VirtualPiano'
 import CharacterReward from '../../components/CharacterReward/CharacterReward'
@@ -11,7 +11,6 @@ const NOTES_PER_STAFF = 4
 
 // ── Note pools ──────────────────────────────────────────────────────────────
 
-// Base pool: notes on the staff (no ledger lines)
 const TREBLE_BASE = [
   { vexKey: 'c/4', fr: 'Do',  midi: 60 },
   { vexKey: 'd/4', fr: 'Ré',  midi: 62 },
@@ -49,7 +48,6 @@ const BASS_EXTENDED = [
 
 // ── Adaptive difficulty helpers ─────────────────────────────────────────────
 
-/** Check if base notes are mastered (accuracy > 80% with at least 20 answers) */
 function isBaseMastered(noteErrors, clef) {
   const prefix = clef + ':'
   let total = 0, correct = 0
@@ -62,14 +60,12 @@ function isBaseMastered(noteErrors, clef) {
   return total >= 20 && (correct / total) > 0.8
 }
 
-/** Weighted random pick: notes with higher error rates appear more often. */
 function weightedPick(pool, noteErrors, clef) {
   const weights = pool.map((note) => {
     const key = `${clef}:${note.fr}:${note.vexKey}`
     const stats = noteErrors[key]
-    if (!stats || stats.total < 3) return 1 // default weight for new notes
+    if (!stats || stats.total < 3) return 1
     const errorRate = stats.wrong / stats.total
-    // Weight: 1 (no errors) to 4 (100% errors)
     return 1 + errorRate * 3
   })
 
@@ -81,8 +77,6 @@ function weightedPick(pool, noteErrors, clef) {
   }
   return pool[pool.length - 1]
 }
-
-// ── Sequence generation ─────────────────────────────────────────────────────
 
 function generateSequence(clef, noteErrors) {
   const base = clef === 'treble' ? TREBLE_BASE : BASS_BASE
@@ -98,13 +92,35 @@ function generateSequence(clef, noteErrors) {
   })
 }
 
-/** Panel style that glows based on unicorn level (reads CSS vars from parent). */
 function panelStyle() {
   return {
     boxShadow: 'var(--panel-shadow, none)',
     borderColor: 'var(--panel-border)',
     transition: 'box-shadow 0.7s, border-color 0.7s',
   }
+}
+
+// ── Chrono hook ─────────────────────────────────────────────────────────────
+
+function useChrono(running) {
+  const [elapsed, setElapsed] = useState(0)
+  const startRef = useRef(Date.now())
+
+  useEffect(() => {
+    if (!running) {
+      setElapsed(0)
+      startRef.current = Date.now()
+      return
+    }
+    startRef.current = Date.now()
+    setElapsed(0)
+    const id = setInterval(() => {
+      setElapsed(((Date.now() - startRef.current) / 1000))
+    }, 100)
+    return () => clearInterval(id)
+  }, [running])
+
+  return { elapsed, startTime: startRef.current }
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -116,7 +132,8 @@ export default function BeginnerMode() {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [results, setResults] = useState([])
   const [busy, setBusy] = useState(false)
-  const [wrongAnswer, setWrongAnswer] = useState(null) // midi of wrong key pressed
+  const [wrongAnswer, setWrongAnswer] = useState(null)
+  const [chronoKey, setChronoKey] = useState(0) // increment to reset chrono
 
   const recordAnswer = useGameStore((s) => s.recordAnswer)
   const recordNoteError = useGameStore((s) => s.recordNoteError)
@@ -124,6 +141,18 @@ export default function BeginnerMode() {
   const unicornLevel = useGameStore((s) => s.progress.beginner.unicornLevel ?? 0)
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const { playSuccess, playFailure, playNote } = useAudio()
+
+  const { elapsed, startTime } = useChrono(!busy ? chronoKey : false)
+
+  // Chrono display helpers
+  const chronoSeconds = busy ? elapsed : elapsed
+  const chronoColor = busy
+    ? 'text-gray-400 dark:text-gray-600'
+    : elapsed < 3
+      ? 'text-green-500 dark:text-green-400'
+      : elapsed <= 10
+        ? 'text-yellow-500 dark:text-yellow-400'
+        : 'text-red-500 dark:text-red-400'
 
   // ── Actions ──
 
@@ -136,6 +165,7 @@ export default function BeginnerMode() {
     setResults([])
     setBusy(false)
     setWrongAnswer(null)
+    setChronoKey((k) => k + 1)
   }, [clef])
 
   const handleAnswer = useCallback(
@@ -145,11 +175,11 @@ export default function BeginnerMode() {
 
       const current = sequence[currentIdx]
       const noteKey = `${clef}:${current.target.fr}:${current.target.vexKey}`
+      const responseTimeMs = Date.now() - startTime
 
-      recordAnswer({ correct: isCorrect, exerciseId: 'note-reading' })
+      recordAnswer({ correct: isCorrect, exerciseId: 'note-reading', responseTimeMs })
       recordNoteError(noteKey, isCorrect)
 
-      // Play the correct note's frequency so the user hears it
       playNote(current.target.midi, '4n')
 
       if (isCorrect) {
@@ -157,7 +187,6 @@ export default function BeginnerMode() {
         setWrongAnswer(null)
       } else {
         playFailure()
-        // Show the wrong key in red briefly
         if (answeredMidi && answeredMidi !== current.target.midi) {
           setWrongAnswer(answeredMidi)
         }
@@ -167,7 +196,6 @@ export default function BeginnerMode() {
       setResults(newResults)
 
       const isLast = currentIdx >= NOTES_PER_STAFF - 1
-      // Longer delay on wrong answer so user can see correct position
       const feedbackDelay = isCorrect ? 700 : 1400
 
       setTimeout(() => {
@@ -177,13 +205,13 @@ export default function BeginnerMode() {
         } else {
           setCurrentIdx((i) => i + 1)
           setBusy(false)
+          setChronoKey((k) => k + 1)
         }
       }, feedbackDelay)
     },
-    [busy, currentIdx, results, sequence, clef, recordAnswer, recordNoteError, playSuccess, playFailure, playNote, startNext],
+    [busy, currentIdx, results, sequence, clef, startTime, recordAnswer, recordNoteError, playSuccess, playFailure, playNote, startNext],
   )
 
-  /** Piano key click → answer if it matches the note name (any octave in pool). */
   const handlePianoClick = useCallback(
     (midi) => {
       if (busy) return
@@ -193,7 +221,6 @@ export default function BeginnerMode() {
     [busy, sequence, currentIdx, handleAnswer],
   )
 
-  /** Button click → answer */
   const handleButtonClick = useCallback(
     (note) => {
       if (busy) return
@@ -228,17 +255,12 @@ export default function BeginnerMode() {
   const seqCorrect = results.filter((r) => r === 'correct').length
   const seqTotal = results.length
 
-  // Highlight correct key green when answered (both correct and wrong answers)
   const pianoHighlight = busy && results.length > currentIdx ? [current.target.midi] : []
-  // Highlight wrong key red on wrong answer
   const pianoWrong = wrongAnswer ? [wrongAnswer] : []
 
-  // Piano — single octave matching the clef (extend if ledger unlocked)
   const useLedger = isBaseMastered(noteErrors, clef)
   const pianoStart = clef === 'treble' ? (useLedger ? 57 : 60) : (useLedger ? 45 : 48)
   const pianoOctaves = useLedger ? 2 : 1
-
-  // Show ledger line badge
   const showLedgerBadge = useLedger
 
   return (
@@ -267,7 +289,7 @@ export default function BeginnerMode() {
 
       {/* ── Main 2-column layout ── */}
       <div className="flex flex-col lg:flex-row gap-3">
-        {/* ── Left column: Staff + Piano + Buttons ── */}
+        {/* ── Left column: Staff + Chrono + Piano + Buttons ── */}
         <div className="flex-1 flex flex-col gap-3 min-w-0">
           {/* Staff */}
           <div className="glass rounded-2xl p-3" style={panelStyle()}>
@@ -276,6 +298,22 @@ export default function BeginnerMode() {
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 Note {Math.min(currentIdx + 1, NOTES_PER_STAFF)}/{NOTES_PER_STAFF}
               </span>
+
+              {/* ── Chrono ── */}
+              <div className={`flex items-center gap-1.5 font-mono text-sm font-bold tabular-nums ${chronoColor} transition-colors`}>
+                <Timer className="w-3.5 h-3.5" />
+                <span>{elapsed.toFixed(1)}s</span>
+                {!busy && (
+                  <span className="text-[10px] font-semibold ml-1">
+                    {elapsed < 3
+                      ? '+2'
+                      : elapsed <= 10
+                        ? '+1'
+                        : '+0'}
+                  </span>
+                )}
+              </div>
+
               {seqTotal > 0 && (
                 <span className="text-xs text-gray-400 dark:text-gray-500">
                   {seqCorrect}/{seqTotal} correct{seqCorrect > 1 ? 's' : ''}
@@ -284,7 +322,7 @@ export default function BeginnerMode() {
             </div>
           </div>
 
-          {/* Piano — always visible, acts as answer input */}
+          {/* Piano */}
           <div className="glass rounded-2xl p-3" style={panelStyle()}>
             <VirtualPiano
               startMidi={pianoStart}
@@ -292,7 +330,7 @@ export default function BeginnerMode() {
               onNoteClick={handlePianoClick}
               highlightMidi={pianoHighlight}
               wrongMidi={pianoWrong}
-              showLabels={true}
+              showLabels={false}
             />
           </div>
 
@@ -336,7 +374,6 @@ export default function BeginnerMode() {
           className="w-full lg:w-[280px] flex-shrink-0 glass rounded-2xl p-3 sm:p-4 self-start"
           style={panelStyle()}
         >
-          {/* Reset button */}
           <div className="flex justify-end mb-1">
             <button
               onClick={handleResetUnicorn}

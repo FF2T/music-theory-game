@@ -94,10 +94,17 @@ export const useGameStore = create(
         // +10 base, +5 bonus per streak level (capped at +25), −0 for wrong
         const points = correct ? 10 + Math.min(newStreak - 1, 5) * 5 : 0
 
-        // Character reward: +1 correct, penaltyValue wrong (beginner only, capped 0-50)
+        // Character reward (beginner only, capped 0-50)
+        // Time-based bonus: <3s → +2, 3-10s → +1, >10s → +0
         const prevUnicorn = modeProgress.unicornLevel ?? 0
+        let unicornDelta = penaltyValue // wrong answer default
+        if (correct) {
+          if (responseTimeMs < 3000) unicornDelta = 2
+          else if (responseTimeMs <= 10000) unicornDelta = 1
+          else unicornDelta = 0
+        }
         const unicornLevel = currentMode === 'beginner'
-          ? Math.max(0, Math.min(50, correct ? prevUnicorn + 1 : prevUnicorn + penaltyValue))
+          ? Math.max(0, Math.min(50, prevUnicorn + unicornDelta))
           : prevUnicorn
 
         set((s) => ({
