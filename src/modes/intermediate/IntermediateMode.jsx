@@ -58,11 +58,11 @@ export default function IntermediateMode() {
       <FeedbackBadge feedback={feedback} />
 
       <div className="text-center">
-        <div className="flex items-center gap-2 justify-center text-blue-400 mb-2">
+        <div className="flex items-center gap-2 justify-center text-blue-500 dark:text-blue-400 mb-2">
           <Layers className="w-5 h-5" />
           <span className="text-sm font-medium uppercase tracking-widest">Intervalles</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-white">Identifie l&apos;intervalle</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Identifie l&apos;intervalle</h2>
       </div>
 
       {/* Staff showing two notes */}
@@ -86,7 +86,7 @@ export default function IntermediateMode() {
           const isCorrect = interval.semitones === target.semitones
           let extra = ''
           if (answered) {
-            extra = isCorrect ? 'ring-2 ring-green-400 bg-green-900/40' : 'opacity-40'
+            extra = isCorrect ? 'ring-2 ring-green-400 bg-green-100 dark:bg-green-900/40' : 'opacity-40'
           }
 
           return (
@@ -96,13 +96,13 @@ export default function IntermediateMode() {
               onClick={() => submit(isCorrect, 'intervals')}
               className={[
                 'py-3 sm:py-4 min-h-[44px] rounded-2xl text-sm sm:text-base font-semibold transition-all duration-150',
-                'glass border border-white/10 hover:border-blue-400/60',
-                'hover:bg-blue-900/20 active:scale-95 disabled:cursor-not-allowed',
+                'glass border border-gray-200 dark:border-white/10 hover:border-blue-400/60',
+                'hover:bg-blue-50 dark:hover:bg-blue-900/20 active:scale-95 disabled:cursor-not-allowed',
                 extra,
               ].join(' ')}
             >
               <div>{interval.name}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{interval.semitones} demi-tons</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{interval.semitones} demi-tons</div>
             </button>
           )
         })}
@@ -110,7 +110,7 @@ export default function IntermediateMode() {
 
       {/* Piano hint */}
       <div className="w-full glass rounded-2xl p-3 sm:p-4">
-        <p className="text-xs text-gray-500 text-center mb-2">Piano de référence</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mb-2">Piano de référence</p>
         <VirtualPiano
           startMidi={60}
           octaves={2}

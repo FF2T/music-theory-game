@@ -6,7 +6,11 @@
       "Bash(python3 -c \"import sys,json; v=json.load\\(sys.stdin\\); print\\(v[-1]\\)\")",
       "Bash(npm run:*)",
       "Bash(npx vite:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(npx netlify:*)",
+      "Bash(gh run:*)",
+      "Bash(gh api:*)",
+      "Bash(grep -E \"\\\\.\\(jsx|js|css|ts|tsx\\)$\")"
     ]
   }
 }

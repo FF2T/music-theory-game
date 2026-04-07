@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useGameStore } from './store/gameStore'
 import ModeSelector from './components/ModeSelector/ModeSelector'
 import GameLayout from './components/GameLayout/GameLayout'
@@ -13,6 +14,11 @@ const MODES = {
 
 export default function App() {
   const { currentMode, setMode } = useGameStore()
+  const theme = useGameStore((s) => s.theme)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+  }, [theme])
 
   if (!currentMode) {
     return <ModeSelector onSelectMode={setMode} />

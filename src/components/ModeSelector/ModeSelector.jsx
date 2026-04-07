@@ -1,6 +1,8 @@
-import { BookOpen, Layers, Zap, Music, Star, Trophy } from 'lucide-react'
+import { useState } from 'react'
+import { BookOpen, Layers, Zap, Music, Star, Trophy, Settings as SettingsIcon } from 'lucide-react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
+import Settings from '../Settings/Settings'
 
 const MODES = [
   {
@@ -44,7 +46,7 @@ function DifficultyStars({ level }) {
       {[1, 2, 3].map((s) => (
         <Star
           key={s}
-          className={`w-3.5 h-3.5 ${s <= level ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`}
+          className={`w-3.5 h-3.5 ${s <= level ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
         />
       ))}
     </div>
@@ -79,8 +81,8 @@ function ModeCard({ mode, onSelect, savedProgress }) {
 
       {/* Title & description */}
       <div>
-        <h2 className="text-xl font-bold text-white mb-1">{mode.label}</h2>
-        <p className="text-sm text-gray-400 leading-relaxed">{mode.description}</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{mode.label}</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{mode.description}</p>
       </div>
 
       {/* Topic pills */}
@@ -88,7 +90,7 @@ function ModeCard({ mode, onSelect, savedProgress }) {
         {mode.topics.map((t) => (
           <span
             key={t}
-            className="px-2.5 py-1 text-xs rounded-full bg-white/8 text-gray-300 border border-white/10"
+            className="px-2.5 py-1 text-xs rounded-full bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10"
           >
             {t}
           </span>
@@ -97,9 +99,9 @@ function ModeCard({ mode, onSelect, savedProgress }) {
 
       {/* Progress footer */}
       {accuracy !== null && (
-        <div className="flex items-center gap-3 pt-3 border-t border-white/10">
+        <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-white/10">
           <Trophy className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {progress.totalAnswered} réponses · {accuracy}% correct · Meilleure série : {progress.bestStreak}
           </span>
         </div>
@@ -114,18 +116,30 @@ function ModeCard({ mode, onSelect, savedProgress }) {
 }
 
 export default function ModeSelector({ onSelectMode }) {
+  const [showSettings, setShowSettings] = useState(false)
   const progress = useGameStore((s) => s.progress)
   const resetAll = useGameStore((s) => s.resetAllProgress)
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-3 sm:px-4 py-8 sm:py-12">
+      {/* Settings button (top right) */}
+      <div className="fixed top-4 right-4 z-30">
+        <button
+          onClick={() => setShowSettings(true)}
+          className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          title="Paramètres"
+        >
+          <SettingsIcon className="w-5 h-5" />
+        </button>
+      </div>
+
       {/* Hero */}
       <div className="text-center mb-8 sm:mb-14 animate-fade-in">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <Music className="w-10 h-10 text-primary-400" strokeWidth={1.5} />
+          <Music className="w-10 h-10 text-primary-500 dark:text-primary-400" strokeWidth={1.5} />
           <h1 className="text-3xl sm:text-5xl font-display font-bold text-gradient">MusicMaster</h1>
         </div>
-        <p className="text-gray-400 text-lg max-w-md mx-auto">
+        <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto">
           Apprends la théorie musicale de façon interactive et ludique.
           Choisis ton niveau pour commencer.
         </p>
@@ -151,11 +165,13 @@ export default function ModeSelector({ onSelectMode }) {
           onClick={() => {
             if (window.confirm('Réinitialiser toute la progression ?')) resetAll()
           }}
-          className="text-gray-600 hover:text-gray-400"
+          className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400"
         >
           Réinitialiser la progression
         </Button>
       </div>
+
+      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
     </div>
   )
 }

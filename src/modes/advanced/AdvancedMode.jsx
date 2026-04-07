@@ -75,13 +75,13 @@ export default function AdvancedMode() {
       <FeedbackBadge feedback={feedback} />
 
       <div className="text-center">
-        <div className="flex items-center gap-2 justify-center text-violet-400 mb-2">
+        <div className="flex items-center gap-2 justify-center text-violet-500 dark:text-violet-400 mb-2">
           <Zap className="w-5 h-5" />
           <span className="text-sm font-medium uppercase tracking-widest">
             {isMode ? 'Modes Grecs' : 'Qualité d\'accord'}
           </span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-white">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
           {isMode
             ? `Quel mode commence sur ${rootName} ?`
             : `Identifie cet accord de ${rootName}`
@@ -110,7 +110,7 @@ export default function AdvancedMode() {
           const isCorrect = id === targetId
           let extra = ''
           if (answered) {
-            extra = isCorrect ? 'ring-2 ring-green-400 bg-green-900/40' : 'opacity-40'
+            extra = isCorrect ? 'ring-2 ring-green-400 bg-green-100 dark:bg-green-900/40' : 'opacity-40'
           }
 
           return (
@@ -120,19 +120,19 @@ export default function AdvancedMode() {
               onClick={() => submit(isCorrect, question.type)}
               className={[
                 'py-3 sm:py-4 px-3 min-h-[44px] rounded-2xl text-sm sm:text-base font-semibold transition-all duration-150 text-left',
-                'glass border border-white/10 hover:border-violet-400/60',
-                'hover:bg-violet-900/20 active:scale-95 disabled:cursor-not-allowed',
+                'glass border border-gray-200 dark:border-white/10 hover:border-violet-400/60',
+                'hover:bg-violet-50 dark:hover:bg-violet-900/20 active:scale-95 disabled:cursor-not-allowed',
                 extra,
               ].join(' ')}
             >
               <div>{choice.name}</div>
               {choice.mood && (
-                <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
                   <Info className="w-3 h-3" />{choice.mood}
                 </div>
               )}
               {choice.symbol !== undefined && (
-                <div className="text-xs text-gray-500 mt-0.5 font-mono">
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-mono">
                   {rootName}{choice.symbol}
                 </div>
               )}
@@ -143,7 +143,7 @@ export default function AdvancedMode() {
 
       {/* Piano */}
       <div className="w-full glass rounded-2xl p-3 sm:p-4">
-        <p className="text-xs text-gray-500 text-center mb-2">Piano de référence</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mb-2">Piano de référence</p>
         <VirtualPiano
           startMidi={60}
           octaves={2}

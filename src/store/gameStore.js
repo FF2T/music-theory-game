@@ -42,6 +42,10 @@ export const useGameStore = create(
       audioEnabled: true,
       toggleAudio: () => set((s) => ({ audioEnabled: !s.audioEnabled })),
 
+      // ── Theme ───────────────────────────────────────────────────────────
+      theme: 'dark', // 'light' | 'dark'
+      setTheme: (theme) => set({ theme }),
+
       // ── Actions ──────────────────────────────────────────────────────────
       recordAnswer: ({ correct, exerciseId, responseTimeMs = 0 }) => {
         const { currentMode, progress, currentStreak } = get()
@@ -105,6 +109,7 @@ export const useGameStore = create(
       partialize: (s) => ({
         progress:     s.progress,
         audioEnabled: s.audioEnabled,
+        theme:        s.theme,
       }),
     },
   ),

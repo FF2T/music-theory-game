@@ -63,7 +63,7 @@ export default function UnicornReward({ level = 0 }) {
     <div className="flex flex-col items-center gap-2 select-none">
       {/* ── Progress bar ── */}
       <div className="w-full flex items-center gap-2">
-        <div className="flex-1 h-2.5 rounded-full bg-white/10 overflow-hidden">
+        <div className="flex-1 h-2.5 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700 ease-out"
             style={{
@@ -76,7 +76,7 @@ export default function UnicornReward({ level = 0 }) {
             }}
           />
         </div>
-        <span className="text-xs font-mono text-gray-400 tabular-nums w-12 text-right">{l}/{MAX_LEVEL}</span>
+        <span className="text-xs font-mono text-gray-500 dark:text-gray-400 tabular-nums w-12 text-right">{l}/{MAX_LEVEL}</span>
       </div>
 
       {/* ── SVG Canvas ── */}

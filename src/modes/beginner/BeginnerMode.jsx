@@ -46,7 +46,7 @@ function generateSequence(clef) {
 function panelStyle() {
   return {
     boxShadow: 'var(--panel-shadow, none)',
-    borderColor: 'var(--panel-border, rgba(255,255,255,0.1))',
+    borderColor: 'var(--panel-border)',
     transition: 'box-shadow 0.7s, border-color 0.7s',
   }
 }
@@ -146,17 +146,17 @@ export default function BeginnerMode() {
     <div className="w-full max-w-6xl animate-fade-in">
       {/* ── Header ── */}
       <div className="text-center mb-3">
-        <div className="flex items-center gap-2 justify-center text-primary-400 mb-1">
+        <div className="flex items-center gap-2 justify-center text-primary-500 dark:text-primary-400 mb-1">
           <Music2 className="w-4 h-4" />
           <span className="text-xs font-medium uppercase tracking-widest">Lecture de note</span>
         </div>
-        <h2 className="text-xl font-bold text-white">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           Identifie chaque note
-          <span className="text-primary-300">
+          <span className="text-primary-600 dark:text-primary-300">
             {' '}— Clé de {clef === 'treble' ? 'Sol 𝄞' : 'Fa 𝄢'}
           </span>
         </h2>
-        <p className="text-xs text-gray-500 mt-1">Clique un bouton ou joue la note au piano</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Clique un bouton ou joue la note au piano</p>
       </div>
 
       {/* ── Main 2-column layout ── */}
@@ -167,11 +167,11 @@ export default function BeginnerMode() {
           <div className="glass rounded-2xl p-3" style={panelStyle()}>
             <StaffDisplay mode="sequence" keys={noteKeys} clef={clef} noteStates={noteStates} />
             <div className="flex items-center justify-between mt-2 px-1">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 Note {Math.min(currentIdx + 1, NOTES_PER_STAFF)}/{NOTES_PER_STAFF}
               </span>
               {seqTotal > 0 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-400 dark:text-gray-500">
                   {seqCorrect}/{seqTotal} correct{seqCorrect > 1 ? 's' : ''}
                 </span>
               )}
@@ -195,7 +195,7 @@ export default function BeginnerMode() {
               let extra = ''
               if (busy && results.length > currentIdx) {
                 extra = isCorrect
-                  ? 'ring-2 ring-green-400 bg-green-900/40'
+                  ? 'ring-2 ring-green-400 bg-green-100 dark:bg-green-900/40'
                   : 'opacity-40'
               }
 
@@ -206,12 +206,12 @@ export default function BeginnerMode() {
                   onClick={() => handleAnswer(isCorrect)}
                   className={[
                     'py-3 min-h-[44px] rounded-xl text-sm sm:text-base font-semibold transition-all duration-150',
-                    'glass border border-white/10 hover:border-primary-400/60',
-                    'hover:bg-primary-900/30 active:scale-95',
+                    'glass border border-gray-200 dark:border-white/10 hover:border-primary-400/60',
+                    'hover:bg-primary-50 dark:hover:bg-primary-900/30 active:scale-95',
                     'disabled:cursor-not-allowed',
                     extra,
                   ].join(' ')}
-                  style={{ borderColor: busy ? undefined : 'var(--panel-border, rgba(255,255,255,0.1))' }}
+                  style={{ borderColor: busy ? undefined : 'var(--panel-border)' }}
                 >
                   {note.fr}
                 </button>
@@ -229,7 +229,7 @@ export default function BeginnerMode() {
           <div className="flex justify-end mb-1">
             <button
               onClick={handleResetUnicorn}
-              className="flex items-center gap-1 text-[10px] text-gray-600 hover:text-gray-400 transition-colors"
+              className="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
               title="Remettre la licorne à zéro"
             >
               <RotateCcw className="w-3 h-3" />
