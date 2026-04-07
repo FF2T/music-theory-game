@@ -129,6 +129,7 @@ export function drawNoteSequence(container, vexKeys, clef = 'treble', noteStates
     note.setStyle({ fillStyle: color, strokeStyle: color })
     if (note.setStemStyle)  note.setStemStyle({ fillStyle: color, strokeStyle: color })
     if (note.setFlagStyle)  note.setFlagStyle({ fillStyle: color, strokeStyle: color })
+    if (note.setLedgerLineStyle) note.setLedgerLineStyle({ fillStyle: color, strokeStyle: color })
 
     if (key.includes('#')) note.addModifier(new Accidental('#'), 0)
     if (key.includes('b') && key[0] !== 'b') note.addModifier(new Accidental('b'), 0)
