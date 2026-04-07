@@ -107,14 +107,14 @@ function ModeCard({ mode, onSelect, savedProgress }) {
 
       <div>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{mode.label}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{mode.description}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-300 leading-relaxed">{mode.description}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {mode.topics.map((t) => (
           <span
             key={t}
-            className="px-2.5 py-1 text-xs rounded-full bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10"
+            className="px-2.5 py-1 text-xs rounded-full bg-gray-100 dark:bg-white/15 text-gray-600 dark:text-gray-100 border border-gray-200 dark:border-white/20"
           >
             {t}
           </span>
@@ -124,7 +124,7 @@ function ModeCard({ mode, onSelect, savedProgress }) {
       {!mode.locked && accuracy !== null && (
         <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-white/10">
           <Trophy className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-gray-500 dark:text-gray-300">
             {progress.totalAnswered} réponses · {accuracy}% correct · Meilleure série : {progress.bestStreak}
           </span>
         </div>
@@ -181,7 +181,7 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
             Bonjour {currentPlayer.name} !
           </p>
         )}
-        <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto">
+        <p className="text-gray-500 dark:text-gray-300 text-sm max-w-md mx-auto">
           Choisis ton niveau pour commencer.
         </p>
       </div>

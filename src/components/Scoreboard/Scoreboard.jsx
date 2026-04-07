@@ -65,7 +65,7 @@ export default function Scoreboard() {
 
       {activePlayers.length === 0 ? (
         <div className="text-center py-4">
-          <p className="text-sm text-gray-400 dark:text-gray-500">
+          <p className="text-sm text-gray-400 dark:text-gray-400">
             Aucun badge obtenu en {diffConfig.label}. Joue en mode Lecture de notes pour débloquer des badges !
           </p>
         </div>
@@ -113,12 +113,12 @@ export default function Scoreboard() {
                     </span>
                   )}
 
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-400">
                     {player.badgeCount}/{CHARACTERS.length}
                   </span>
 
                   {player.badgeCount > 0 && (
-                    <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500">
+                    <span className="text-[10px] font-mono text-gray-400 dark:text-gray-400">
                       cumul : {formatTime(player.totalTime)}
                     </span>
                   )}
@@ -132,7 +132,7 @@ export default function Scoreboard() {
                       return (
                         <span
                           key={char.id}
-                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600 text-xs opacity-40"
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-300 dark:text-gray-500 text-xs opacity-40"
                           title={`${char.label} - non obtenu`}
                         >
                           <span className="grayscale">{char.emoji}</span>
