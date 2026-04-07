@@ -114,7 +114,7 @@ function ModeCard({ mode, onSelect, savedProgress }) {
         {mode.topics.map((t) => (
           <span
             key={t}
-            className="px-2.5 py-1 text-xs rounded-full bg-gray-100 dark:bg-white/15 text-gray-600 dark:text-gray-100 border border-gray-200 dark:border-white/20"
+            className="px-2.5 py-1 text-xs rounded-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-100 border border-gray-300 dark:border-gray-600"
           >
             {t}
           </span>
