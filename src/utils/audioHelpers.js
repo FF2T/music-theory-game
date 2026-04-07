@@ -8,6 +8,7 @@ import { midiToToneNote } from './musicTheory'
 
 let synth = null
 let polySynth = null
+let audioStarted = false
 
 function getSynth() {
   if (!synth) {
@@ -29,18 +30,28 @@ function getPolySynth() {
   return polySynth
 }
 
-/** Ensure AudioContext is running (call from a click handler) */
+/** Ensure AudioContext is running (call once from a click handler) */
 export async function startAudio() {
-  await Tone.start()
+  if (!audioStarted) {
+    await Tone.start()
+    audioStarted = true
+  }
+}
+
+/** Warm up: call on first user interaction to eliminate latency */
+export function warmUpAudio() {
+  startAudio().then(() => {
+    // Pre-create synths so first note is instant
+    getSynth()
+    getPolySynth()
+  })
 }
 
 /**
- * Play a single MIDI note.
- * @param {number} midi
- * @param {string} [duration='8n']
+ * Play a single MIDI note — synchronous (no await needed).
  */
-export async function playNote(midi, duration = '8n') {
-  await startAudio()
+export function playNote(midi, duration = '8n') {
+  if (!audioStarted) return
   const note = midiToToneNote(midi)
   getSynth().triggerAttackRelease(note, duration)
 }
@@ -48,30 +59,26 @@ export async function playNote(midi, duration = '8n') {
 /**
  * Play a Tone.js note string directly (e.g. "C4").
  */
-export async function playToneNote(noteStr, duration = '8n') {
-  await startAudio()
+export function playToneNote(noteStr, duration = '8n') {
+  if (!audioStarted) return
   getSynth().triggerAttackRelease(noteStr, duration)
 }
 
 /**
  * Play multiple MIDI notes simultaneously (chord).
- * @param {number[]} midiNotes
- * @param {string} [duration='2n']
  */
-export async function playChord(midiNotes, duration = '2n') {
-  await startAudio()
+export function playChord(midiNotes, duration = '2n') {
+  if (!audioStarted) return
   const notes = midiNotes.map(midiToToneNote)
   getPolySynth().triggerAttackRelease(notes, duration)
 }
 
 /**
  * Play a sequence of MIDI notes melodically.
- * @param {number[]} midiNotes
- * @param {number} [bpm=120]
  */
-export async function playMelody(midiNotes, bpm = 120) {
-  await startAudio()
-  const noteDuration = (60 / bpm) * 1000 // ms per beat
+export function playMelody(midiNotes, bpm = 120) {
+  if (!audioStarted) return
+  const noteDuration = (60 / bpm) * 1000
   for (let i = 0; i < midiNotes.length; i++) {
     const note = midiToToneNote(midiNotes[i])
     getSynth().triggerAttackRelease(note, '8n', Tone.now() + (i * noteDuration) / 1000)
@@ -81,8 +88,8 @@ export async function playMelody(midiNotes, bpm = 120) {
 /**
  * Play a success jingle.
  */
-export async function playSuccess() {
-  await startAudio()
+export function playSuccess() {
+  if (!audioStarted) return
   const s = getSynth()
   const now = Tone.now()
   s.triggerAttackRelease('C5', '16n', now)
@@ -93,8 +100,8 @@ export async function playSuccess() {
 /**
  * Play a failure sound.
  */
-export async function playFailure() {
-  await startAudio()
+export function playFailure() {
+  if (!audioStarted) return
   const s = getSynth()
   const now = Tone.now()
   s.triggerAttackRelease('A3', '16n', now)

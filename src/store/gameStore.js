@@ -252,7 +252,7 @@ export const useGameStore = create(
         }))
 
         // Clear feedback after 1.2s
-        setTimeout(() => set({ lastFeedback: null }), 1200)
+        setTimeout(() => set({ lastFeedback: null }), 500)
 
         // Check if unicorn reached 50
         if (currentMode === 'beginner' && unicornLevel >= 50 && prevUnicorn < 50) {

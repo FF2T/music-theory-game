@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { UserPlus, Music } from 'lucide-react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
+import { warmUpAudio } from '../../utils/audioHelpers'
 
 export default function PlayerSelector({ onSelect }) {
   const players = useGameStore((s) => s.players)
@@ -12,6 +13,7 @@ export default function PlayerSelector({ onSelect }) {
   const [newName, setNewName] = useState('')
 
   function handleSelect(id) {
+    warmUpAudio()
     setCurrentPlayer(id)
     onSelect(id)
   }

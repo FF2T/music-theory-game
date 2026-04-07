@@ -278,12 +278,12 @@ export default function BeginnerMode() {
       setResults(newResults)
 
       const isLast = currentIdx >= NOTES_PER_STAFF - 1
-      const feedbackDelay = isCorrect ? 700 : 1400
+      const feedbackDelay = isCorrect ? 350 : 800
 
       setTimeout(() => {
         setWrongAnswer(null)
         if (isLast) {
-          setTimeout(() => startNext(), 900)
+          setTimeout(() => startNext(), 400)
         } else {
           setCurrentIdx((i) => i + 1)
           setBusy(false)

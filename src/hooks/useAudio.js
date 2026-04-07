@@ -16,12 +16,11 @@ export function useAudio() {
   const audioEnabled = useGameStore((s) => s.audioEnabled)
 
   const safePlay = useCallback(
-    async (fn, ...args) => {
+    (fn, ...args) => {
       if (!audioEnabled) return
       try {
-        await fn(...args)
+        fn(...args)
       } catch (e) {
-        // AudioContext may be suspended; silently ignore
         console.warn('[useAudio] playback error', e)
       }
     },
