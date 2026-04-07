@@ -360,20 +360,20 @@ export default function BeginnerMode() {
     <div className="w-full max-w-6xl animate-fade-in">
       {/* ── Confetti overlay ── */}
       {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {Array.from({ length: 60 }).map((_, i) => (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden will-change-transform">
+          {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
               className="absolute animate-confetti"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `-5%`,
-                animationDelay: `${Math.random() * 1.5}s`,
-                animationDuration: `${2 + Math.random() * 2}s`,
-                fontSize: `${20 + Math.random() * 24}px`,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 3}s`,
+                fontSize: `${16 + Math.random() * 20}px`,
               }}
             >
-              {['🎉', '✨', '🌟', '🎶', '💫', '🎵', '⭐', '🏆'][i % 8]}
+              {['🎉', '✨', '🌟', '🎶', '💫'][i % 5]}
             </div>
           ))}
         </div>
