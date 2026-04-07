@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans antialiased;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+}
+
+@layer components {
+  /* Piano key styles */
+  .piano-key-white {
+    @apply bg-ivory-100 border border-gray-300 rounded-b-md cursor-pointer
+           hover:bg-ivory-300 active:bg-ivory-400
+           transition-colors duration-75 select-none;
+  }
+
+  .piano-key-white.active {
+    @apply bg-primary-200;
+  }
+
+  .piano-key-black {
+    @apply bg-gray-900 border border-gray-700 rounded-b-md cursor-pointer
+           hover:bg-gray-700 active:bg-gray-600
+           transition-colors duration-75 select-none z-10;
+  }
+
+  .piano-key-black.active {
+    @apply bg-primary-700;
+  }
+
+  /* Staff container */
+  .staff-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Feedback animations */
+  .answer-correct {
+    @apply animate-bounce-in text-green-400;
+  }
+
+  .answer-wrong {
+    @apply animate-pulse-fast text-red-400;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(61, 86, 245, 0.4);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #6080ff, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Rainbow animated border for max-level embellishment */
+  @keyframes rainbowShift {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+  .rainbow-border {
+    animation: rainbowShift 4s linear infinite;
+  }
+
+  @keyframes floatParticle {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+    50%      { transform: translateY(-12px) scale(1.3); opacity: 0.8; }
+  }
+  .float-particle {
+    animation: floatParticle 3s ease-in-out infinite;
+  }
+}
