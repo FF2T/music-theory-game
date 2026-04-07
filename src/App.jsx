@@ -30,10 +30,13 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
-  // Force clean state on mount
+  // Force clean state on mount + load cloud data
   useEffect(() => {
     setMode(null)
     resetSession()
+    useGameStore.getState().loadCloud()
+    const unsub = useGameStore.getState().subscribeCloud()
+    return () => unsub()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Watch for session completion (badge earned at 50 points)

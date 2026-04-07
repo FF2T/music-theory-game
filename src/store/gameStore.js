@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { saveToCloud, loadFromCloud, subscribeToCloud } from '../utils/firebase'
 
 const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
@@ -64,7 +65,7 @@ export const DIFFICULTY_CONFIGS = {
   },
   expert: {
     label: 'Expert',
-    emoji: '\u{1F480}',
+    emoji: '\u{1F916}',
     stars: 4,
     description: 'Clé aléatoire, toutes les notes, choix adjacents',
     clefMode: 'random',
@@ -98,6 +99,9 @@ export const useGameStore = create(
           players: [...s.players, { id, name }],
           currentPlayerId: id,
         }))
+        // Sync to cloud
+        const { players, playerRecords } = get()
+        saveToCloud(players, playerRecords)
       },
 
       setCurrentPlayer: (id) => set({ currentPlayerId: id }),
@@ -163,6 +167,9 @@ export const useGameStore = create(
             },
             sessionComplete: true,
           }))
+          // Sync to cloud
+          const state = get()
+          saveToCloud(state.players, state.playerRecords)
         } else {
           set({ sessionComplete: true })
         }
@@ -277,7 +284,80 @@ export const useGameStore = create(
         },
       })),
 
-      resetAllProgress: () => set({ progress: initialProgress, noteErrors: {}, playerRecords: {} }),
+      resetAllProgress: () => {
+        set({ progress: initialProgress, noteErrors: {}, playerRecords: {} })
+        saveToCloud(get().players, {})
+      },
+
+      // ── Cloud sync ──────────────────────────────────────────────────────
+      cloudLoaded: false,
+
+      loadCloud: async () => {
+        const data = await loadFromCloud()
+        if (!data) { set({ cloudLoaded: true }); return }
+
+        // Merge: cloud players + local players (deduplicate by id)
+        const localPlayers = get().players
+        const cloudPlayers = data.players || []
+        const mergedMap = new Map()
+        for (const p of localPlayers) mergedMap.set(p.id, p)
+        for (const p of cloudPlayers) mergedMap.set(p.id, p)
+        const mergedPlayers = [...mergedMap.values()]
+
+        // Merge records: keep best time per badge
+        const localRecords = get().playerRecords || {}
+        const cloudRecords = data.playerRecords || {}
+        const mergedRecords = { ...localRecords }
+        for (const [playerId, pData] of Object.entries(cloudRecords)) {
+          if (!mergedRecords[playerId]) {
+            mergedRecords[playerId] = pData
+          } else {
+            const localBadges = mergedRecords[playerId].badges || {}
+            const cloudBadges = pData.badges || {}
+            const merged = { ...localBadges }
+            for (const [charId, record] of Object.entries(cloudBadges)) {
+              if (!merged[charId] || record.time < merged[charId].time) {
+                merged[charId] = record
+              }
+            }
+            mergedRecords[playerId] = { ...mergedRecords[playerId], badges: merged }
+          }
+        }
+
+        set({ players: mergedPlayers, playerRecords: mergedRecords, cloudLoaded: true })
+      },
+
+      subscribeCloud: () => {
+        return subscribeToCloud((data) => {
+          if (!data) return
+          const localPlayers = get().players
+          const cloudPlayers = data.players || []
+          const mergedMap = new Map()
+          for (const p of localPlayers) mergedMap.set(p.id, p)
+          for (const p of cloudPlayers) mergedMap.set(p.id, p)
+
+          const localRecords = get().playerRecords || {}
+          const cloudRecords = data.playerRecords || {}
+          const mergedRecords = { ...localRecords }
+          for (const [playerId, pData] of Object.entries(cloudRecords)) {
+            if (!mergedRecords[playerId]) {
+              mergedRecords[playerId] = pData
+            } else {
+              const localBadges = mergedRecords[playerId].badges || {}
+              const cloudBadges = pData.badges || {}
+              const merged = { ...localBadges }
+              for (const [charId, record] of Object.entries(cloudBadges)) {
+                if (!merged[charId] || record.time < merged[charId].time) {
+                  merged[charId] = record
+                }
+              }
+              mergedRecords[playerId] = { ...mergedRecords[playerId], badges: merged }
+            }
+          }
+
+          set({ players: [...mergedMap.values()], playerRecords: mergedRecords })
+        })
+      },
     }),
     {
       name: 'musicmaster-progress',
