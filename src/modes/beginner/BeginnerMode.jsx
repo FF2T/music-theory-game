@@ -122,7 +122,7 @@ function generateSequence(clef, noteErrors, difficultyLevel) {
   const config = DIFFICULTY_CONFIGS[difficultyLevel] || DIFFICULTY_CONFIGS.normal
   const base = clef === 'treble' ? TREBLE_BASE : BASS_BASE
   const ext = clef === 'treble' ? TREBLE_EXTENDED : BASS_EXTENDED
-  const useLedger = config.forceLedger || isBaseMastered(noteErrors, clef)
+  const useLedger = config.forceLedger || isBaseMastered(noteErrors, 'treble') || isBaseMastered(noteErrors, 'bass')
   const pool = useLedger ? [...base, ...ext] : base
 
   return Array.from({ length: NOTES_PER_STAFF }, () => {
@@ -334,10 +334,12 @@ export default function BeginnerMode() {
   const pianoHighlight = busy && results.length > currentIdx ? [current.target.midi] : []
   const pianoWrong = wrongAnswer ? [wrongAnswer] : []
 
-  const useLedger = diffConfig.forceLedger || isBaseMastered(noteErrors, clef)
+  // Use ledger for both clefs together so the piano stays consistent
+  const useLedgerTreble = diffConfig.forceLedger || isBaseMastered(noteErrors, 'treble')
+  const useLedgerBass = diffConfig.forceLedger || isBaseMastered(noteErrors, 'bass')
+  const useLedger = useLedgerTreble || useLedgerBass
   const pianoStart = clef === 'treble' ? (useLedger ? 57 : 60) : (useLedger ? 45 : 48)
   const pianoOctaves = useLedger ? 2 : 1
-  const showLedgerBadge = useLedger
 
   // Format session timer
   const sessionMin = Math.floor(sessionElapsed / 60)
