@@ -365,11 +365,6 @@ export default function BeginnerMode() {
         </h2>
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Clique un bouton ou joue la note au piano
-          {showLedgerBadge && (
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-semibold">
-              + lignes supplémentaires
-            </span>
-          )}
         </p>
       </div>
 
