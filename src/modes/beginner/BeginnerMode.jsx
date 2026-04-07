@@ -348,8 +348,37 @@ export default function BeginnerMode() {
     ? `${sessionMin}:${sessionSec.toString().padStart(2, '0')}`
     : `${sessionSec}s`
 
+  // Confetti when reaching 50
+  const [showConfetti, setShowConfetti] = useState(false)
+  useEffect(() => {
+    if (unicornLevel >= 50 && !showConfetti) {
+      setShowConfetti(true)
+    }
+  }, [unicornLevel]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="w-full max-w-6xl animate-fade-in">
+      {/* ── Confetti overlay ── */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array.from({ length: 60 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-confetti"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-5%`,
+                animationDelay: `${Math.random() * 1.5}s`,
+                animationDuration: `${2 + Math.random() * 2}s`,
+                fontSize: `${20 + Math.random() * 24}px`,
+              }}
+            >
+              {['🎉', '✨', '🌟', '🎶', '💫', '🎵', '⭐', '🏆'][i % 8]}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── Header ── */}
       <div className="text-center mb-3">
         <div className="flex items-center gap-2 justify-center text-primary-500 dark:text-primary-400 mb-1">
