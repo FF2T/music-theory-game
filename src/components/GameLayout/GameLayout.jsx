@@ -69,10 +69,14 @@ export default function GameLayout({ children, onExit }) {
     ? Math.round((sessionCorrect / sessionAnswers) * 100)
     : 0
 
+  const currentPlayerId = useGameStore((s) => s.currentPlayerId)
+  const players = useGameStore((s) => s.players)
+  const currentPlayer = players.find((p) => p.id === currentPlayerId)
+
   const modeLabel = {
-    beginner:     'Débutant',
-    intermediate: 'Intermédiaire',
-    advanced:     'Avancé',
+    beginner:     'Lecture de notes',
+    intermediate: 'Rock Star',
+    advanced:     'Légende vivante',
   }[currentMode] ?? ''
 
   function handleExit() {
@@ -102,7 +106,9 @@ export default function GameLayout({ children, onExit }) {
           Modes
         </Button>
 
-        <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">{modeLabel}</span>
+        <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+          {currentPlayer ? `${currentPlayer.name} — ` : ''}{modeLabel}
+        </span>
 
         {/* Score HUD */}
         <div className="flex items-center gap-4 text-sm">

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from './store/gameStore'
+import PlayerSelector from './components/PlayerSelector/PlayerSelector'
 import ModeSelector from './components/ModeSelector/ModeSelector'
 import CharacterSelector from './components/CharacterSelector/CharacterSelector'
+import SessionComplete from './components/SessionComplete/SessionComplete'
 import GameLayout from './components/GameLayout/GameLayout'
 import BeginnerMode from './modes/beginner/BeginnerMode'
 import IntermediateMode from './modes/intermediate/IntermediateMode'
@@ -14,41 +16,98 @@ const MODES = {
 }
 
 export default function App() {
-  const { currentMode, setMode } = useGameStore()
+  const { setMode, resetSession } = useGameStore()
+  const sessionComplete = useGameStore((s) => s.sessionComplete)
   const theme = useGameStore((s) => s.theme)
-  const [showCharacterSelect, setShowCharacterSelect] = useState(false)
+  const startBeginnerSession = useGameStore((s) => s.startBeginnerSession)
+
+  // Single screen state machine — no ambiguity
+  const [screen, setScreen] = useState('player-select')
+  // Which game mode is active (only relevant when screen === 'game')
+  const [activeMode, setActiveMode] = useState(null)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
-  // Character selection flow for beginner mode
-  function handleSelectMode(mode) {
-    if (mode === 'beginner') {
-      setShowCharacterSelect(true)
-    } else {
-      setMode(mode)
+  // Force clean state on mount
+  useEffect(() => {
+    setMode(null)
+    resetSession()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Watch for session completion (badge earned at 50 points)
+  useEffect(() => {
+    if (sessionComplete && activeMode === 'beginner') {
+      setScreen('session-complete')
     }
+  }, [sessionComplete, activeMode])
+
+  // ── Screen: Player selection ──
+  if (screen === 'player-select') {
+    return (
+      <PlayerSelector
+        onSelect={() => setScreen('home')}
+      />
+    )
   }
 
-  function handleCharacterSelected() {
-    setShowCharacterSelect(false)
-    setMode('beginner')
+  // ── Screen: Session complete (badge earned) ──
+  if (screen === 'session-complete') {
+    return (
+      <SessionComplete
+        onContinue={() => {
+          resetSession()
+          setMode(null)
+          setActiveMode(null)
+          setScreen('home')
+        }}
+      />
+    )
   }
 
-  if (showCharacterSelect && !currentMode) {
-    return <CharacterSelector onSelect={handleCharacterSelected} />
+  // ── Screen: Character + difficulty selection ──
+  if (screen === 'character-select') {
+    return (
+      <CharacterSelector
+        onSelect={() => {
+          startBeginnerSession()
+          setMode('beginner')
+          setActiveMode('beginner')
+          setScreen('game')
+        }}
+      />
+    )
   }
 
-  if (!currentMode) {
-    return <ModeSelector onSelectMode={handleSelectMode} />
+  // ── Screen: Game ──
+  if (screen === 'game' && activeMode) {
+    const ModeComponent = MODES[activeMode]
+    return (
+      <GameLayout onExit={() => {
+        resetSession()
+        setMode(null)
+        setActiveMode(null)
+        setScreen('home')
+      }}>
+        <ModeComponent />
+      </GameLayout>
+    )
   }
 
-  const ModeComponent = MODES[currentMode]
-
+  // ── Screen: Home (mode selection + scoreboard) ──
   return (
-    <GameLayout onExit={() => { setMode(null); setShowCharacterSelect(false) }}>
-      <ModeComponent />
-    </GameLayout>
+    <ModeSelector
+      onSelectMode={(mode) => {
+        if (mode === 'beginner') {
+          setScreen('character-select')
+        } else {
+          setMode(mode)
+          setActiveMode(mode)
+          setScreen('game')
+        }
+      }}
+      onChangePlayer={() => setScreen('player-select')}
+    />
   )
 }
