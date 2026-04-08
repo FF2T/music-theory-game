@@ -19,7 +19,7 @@ export default function PlayerSelector({ onSelect }) {
   const [pinError, setPinError] = useState(false)
   const [settingPin, setSettingPin] = useState(null) // player id setting new PIN
   const [newPinDigits, setNewPinDigits] = useState(['', '', '', ''])
-  const ADMIN_PIN = '2206'
+  const ADMIN_PIN = '2022'
   const [authForSettings, setAuthForSettings] = useState(null) // player id needing auth before settings
   const [authDigits, setAuthDigits] = useState(['', '', '', ''])
   const [authError, setAuthError] = useState(false)
