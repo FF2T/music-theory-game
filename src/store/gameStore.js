@@ -185,6 +185,14 @@ export const useGameStore = create(
 
       setCurrentPlayer: (id) => set({ currentPlayerId: id }),
 
+      setPlayerPin: (id, pin) => {
+        set((s) => ({
+          players: s.players.map((p) => p.id === id ? { ...p, pin } : p),
+        }))
+        const { players, playerRecords } = get()
+        saveToCloud(players, playerRecords)
+      },
+
       // ── Difficulty ──────────────────────────────────────────────────────
       difficultyLevel: 'normal',
       setDifficulty: (level) => set({ difficultyLevel: level }),
