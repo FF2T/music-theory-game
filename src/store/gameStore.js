@@ -173,6 +173,8 @@ export const useGameStore = create(
       playerRecords: {},
 
       addPlayer: (name) => {
+        const existing = get().players
+        if (existing.some((p) => p.name.toLowerCase() === name.toLowerCase())) return false
         const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now()
         set((s) => ({
           players: [...s.players, { id, name }],

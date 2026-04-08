@@ -98,13 +98,20 @@ export default function PlayerSelector({ onSelect }) {
     setSettingPin(null)
   }
 
+  const [addError, setAddError] = useState('')
+
   function handleAddPlayer(e) {
     e.preventDefault()
     const name = newName.trim()
     if (!name) return
+    if (players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+      setAddError('Ce prénom existe déjà')
+      return
+    }
     addPlayer(name)
     setNewName('')
     setShowAdd(false)
+    setAddError('')
     setTimeout(() => {
       const state = useGameStore.getState()
       onSelect(state.currentPlayerId)
@@ -314,21 +321,27 @@ export default function PlayerSelector({ onSelect }) {
 
       {/* Add player form */}
       {showAdd && (
-        <form onSubmit={handleAddPlayer} className="mt-4 flex items-center gap-2 w-full max-w-xs">
+        <div className="mt-4 w-full max-w-xs">
+        <form onSubmit={handleAddPlayer} className="flex items-center gap-2">
           <input
             autoFocus
             type="text"
             value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            onChange={(e) => { setNewName(e.target.value); setAddError('') }}
             placeholder="Prénom..."
-            className="flex-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+            className={[
+              'flex-1 px-3 py-2 rounded-xl border bg-white dark:bg-white/5 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-400',
+              addError ? 'border-red-400' : 'border-gray-300 dark:border-white/20',
+            ].join(' ')}
             maxLength={20}
           />
           <Button size="sm" type="submit" disabled={!newName.trim()}>OK</Button>
-          <Button size="sm" variant="ghost" type="button" onClick={() => { setShowAdd(false); setNewName('') }}>
+          <Button size="sm" variant="ghost" type="button" onClick={() => { setShowAdd(false); setNewName(''); setAddError('') }}>
             Annuler
           </Button>
         </form>
+        {addError && <p className="text-sm text-red-500 mt-1.5 animate-shake">{addError}</p>}
+        </div>
       )}
     </div>
   )
