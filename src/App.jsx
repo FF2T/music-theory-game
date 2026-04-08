@@ -20,11 +20,14 @@ export default function App() {
   const sessionComplete = useGameStore((s) => s.sessionComplete)
   const theme = useGameStore((s) => s.theme)
   const startBeginnerSession = useGameStore((s) => s.startBeginnerSession)
+  const startIntermediateSession = useGameStore((s) => s.startIntermediateSession)
 
   // Single screen state machine — no ambiguity
   const [screen, setScreen] = useState('player-select')
   // Which game mode is active (only relevant when screen === 'game')
   const [activeMode, setActiveMode] = useState(null)
+  // Pending mode for character selection flow
+  const [pendingMode, setPendingMode] = useState(null)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -41,7 +44,7 @@ export default function App() {
 
   // Watch for session completion (badge earned at 50 points)
   useEffect(() => {
-    if (sessionComplete && activeMode === 'beginner') {
+    if (sessionComplete && (activeMode === 'beginner' || activeMode === 'intermediate')) {
       setScreen('session-complete')
     }
   }, [sessionComplete, activeMode])
@@ -74,9 +77,14 @@ export default function App() {
     return (
       <CharacterSelector
         onSelect={() => {
-          startBeginnerSession()
-          setMode('beginner')
-          setActiveMode('beginner')
+          const mode = pendingMode || 'beginner'
+          if (mode === 'intermediate') {
+            startIntermediateSession()
+          } else {
+            startBeginnerSession()
+          }
+          setMode(mode)
+          setActiveMode(mode)
           setScreen('game')
         }}
       />
@@ -102,7 +110,8 @@ export default function App() {
   return (
     <ModeSelector
       onSelectMode={(mode) => {
-        if (mode === 'beginner') {
+        if (mode === 'beginner' || mode === 'intermediate') {
+          setPendingMode(mode)
           setScreen('character-select')
         } else {
           setMode(mode)

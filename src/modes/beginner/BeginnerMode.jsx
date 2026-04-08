@@ -79,7 +79,13 @@ function weightedPick(pool, noteErrors, clef, weightBoost) {
 }
 
 function pickChoices(pool, target, strategy) {
-  const others = pool.filter((n) => n.midi !== target.midi)
+  // Filter out notes with the same name (e.g. Do3 and Do4 both show "Do") to avoid confusing duplicates
+  const seenNames = new Set([target.fr])
+  const others = pool.filter((n) => {
+    if (n.midi === target.midi || seenNames.has(n.fr)) return false
+    seenNames.add(n.fr)
+    return true
+  })
 
   if (strategy === 'wide') {
     // Spread choices far apart - sort by distance descending, pick evenly spaced

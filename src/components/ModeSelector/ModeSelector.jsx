@@ -26,10 +26,10 @@ const MODES = [
     color: 'from-blue-600 to-indigo-700',
     border: 'border-blue-500/30 hover:border-blue-400/60',
     glow: 'hover:shadow-blue-500/20',
-    description: 'Module en cours de développement',
-    topics: ['Intervalles', 'Pentatonique Maj/min', 'Signatures rythmiques', 'Oreille musicale'],
+    description: 'Identifie les intervalles sur la portée et à l\'oreille',
+    topics: ['Intervalles', 'Tierces & Quintes', 'Ascendant & Descendant', '50 points = Badge'],
     difficulty: 2,
-    locked: true,
+    locked: false,
   },
   {
     id: 'advanced',

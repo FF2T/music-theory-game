@@ -65,6 +65,60 @@ export const INTERVALS = [
   { semitones: 12, name: 'Octave',           abbr: '8ve', en: 'Octave' },
 ]
 
+// ── Interval helpers ─────────────────────────────────────────────────────────
+
+/** Diatonic letter steps for each interval (semitones → letter offset) */
+const INTERVAL_LETTER_STEPS = {
+  1: 1, 2: 1,    // seconds
+  3: 2, 4: 2,    // thirds
+  5: 3,          // fourth
+  6: 3,          // tritone (augmented fourth)
+  7: 4,          // fifth
+  8: 5, 9: 5,    // sixths
+  10: 6, 11: 6,  // sevenths
+  12: 7,         // octave
+}
+
+const DIATONIC_LETTERS = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
+
+/**
+ * Compute the upper note's vexKey for an interval above a given root.
+ * Returns { vexKey, midi } with correct diatonic spelling.
+ */
+export function intervalUpperNote(rootVexKey, semitones) {
+  // Parse root: "c/4", "f#/3", "bb/4"
+  const parts = rootVexKey.split('/')
+  const octave = parseInt(parts[1], 10)
+  const letterPart = parts[0]
+  const rootLetter = letterPart.charAt(0).toLowerCase()
+  const rootIdx = DIATONIC_LETTERS.indexOf(rootLetter)
+
+  // Compute root MIDI from vexKey
+  const letterMidi = [0, 2, 4, 5, 7, 9, 11] // c d e f g a b
+  let rootMidi = (octave + 1) * 12 + letterMidi[rootIdx]
+  if (letterPart.includes('#')) rootMidi += 1
+  else if (letterPart.includes('b')) rootMidi -= 1
+
+  const upperMidi = rootMidi + semitones
+  const letterSteps = INTERVAL_LETTER_STEPS[semitones] ?? Math.round(semitones * 7 / 12)
+  const upperLetterIdx = (rootIdx + letterSteps) % 7
+  const upperOctave = octave + Math.floor((rootIdx + letterSteps) / 7)
+  const upperLetter = DIATONIC_LETTERS[upperLetterIdx]
+  const expectedMidi = (upperOctave + 1) * 12 + letterMidi[upperLetterIdx]
+  const diff = upperMidi - expectedMidi
+
+  let accidental = ''
+  if (diff === 1) accidental = '#'
+  else if (diff === -1) accidental = 'b'
+  else if (diff === 2) accidental = '##'
+  else if (diff === -2) accidental = 'bb'
+
+  return {
+    vexKey: `${upperLetter}${accidental}/${upperOctave}`,
+    midi: upperMidi,
+  }
+}
+
 // ── Pentatonic scales ─────────────────────────────────────────────────────────
 
 /** Returns MIDI note array for a major pentatonic starting at rootMidi */

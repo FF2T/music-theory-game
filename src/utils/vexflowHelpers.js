@@ -48,19 +48,22 @@ export function drawSingleNote(container, vexKey, duration = 'q') {
 /**
  * Draw two notes side by side (interval exercise).
  */
-export function drawInterval(container, key1, key2) {
+export function drawInterval(container, key1, key2, clef = 'treble') {
   const width  = Math.max(container.clientWidth || 500, 300)
   const height = 150
   const renderer = createRenderer(container, width, height)
   const context  = renderer.getContext()
 
   const stave = new Stave(10, 20, width - 20)
-  stave.addClef('treble')
+  stave.addClef(clef)
   stave.setContext(context).draw()
 
   const notes = [key1, key2].map((k) => {
-    const n = new StaveNote({ keys: [k], duration: 'h' })
-    if (k.includes('#')) n.addModifier(new Accidental('#'), 0)
+    const n = new StaveNote({ keys: [k], duration: 'h', clef })
+    const letter = k.split('/')[0]
+    if (letter.includes('##')) n.addModifier(new Accidental('##'), 0)
+    else if (letter.includes('#')) n.addModifier(new Accidental('#'), 0)
+    else if (letter.length > 1 && letter.includes('b')) n.addModifier(new Accidental(letter.slice(1)), 0)
     return n
   })
 

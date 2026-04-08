@@ -4,7 +4,7 @@ import { saveToCloud, loadFromCloud, subscribeToCloud } from '../utils/firebase'
 
 const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
-  intermediate: { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['intervals'] },
+  intermediate: { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['intervals'] },
   advanced:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['greek-modes'] },
 }
 
@@ -73,6 +73,53 @@ export const DIFFICULTY_CONFIGS = {
     choiceStrategy: 'adjacent',
     weightBoost: 7,
     timeThresholds: [1.5, 5],
+    penaltyMultiplier: 2,
+  },
+}
+
+export const INTERVAL_DIFFICULTY_CONFIGS = {
+  facile: {
+    label: 'Facile', emoji: '\u{1F331}', stars: 1,
+    description: 'Tierces et quinte, ascendant uniquement',
+    intervals: ['3m', '3M', 'P5', 'P8'],
+    allowDescending: false,
+    clefMode: 'treble-only',
+    choiceCount: 3,
+    autoPlay: true,
+    timeThresholds: [6, 18],
+    penaltyMultiplier: 0.5,
+  },
+  normal: {
+    label: 'Normal', emoji: '\u{1F3B5}', stars: 2,
+    description: 'Plus d\'intervalles, ascendant',
+    intervals: ['2M', '3m', '3M', 'P4', 'P5', '6M', 'P8'],
+    allowDescending: false,
+    clefMode: 'treble-only',
+    choiceCount: 4,
+    autoPlay: true,
+    timeThresholds: [4, 12],
+    penaltyMultiplier: 1,
+  },
+  difficile: {
+    label: 'Difficile', emoji: '\u{1F525}', stars: 3,
+    description: 'Tous les intervalles, ascendant et descendant',
+    intervals: ['2m', '2M', '3m', '3M', 'P4', 'TT', 'P5', '6m', '6M', '7m', 'P8'],
+    allowDescending: true,
+    clefMode: 'alternate-slow',
+    choiceCount: 4,
+    autoPlay: false,
+    timeThresholds: [3, 8],
+    penaltyMultiplier: 1.5,
+  },
+  expert: {
+    label: 'Expert', emoji: '\u{1F916}', stars: 4,
+    description: 'Tous les intervalles, toutes les directions',
+    intervals: ['2m', '2M', '3m', '3M', 'P4', 'TT', 'P5', '6m', '6M', '7m', '7M', 'P8'],
+    allowDescending: true,
+    clefMode: 'random',
+    choiceCount: 4,
+    autoPlay: false,
+    timeThresholds: [2, 6],
     penaltyMultiplier: 2,
   },
 }
@@ -229,6 +276,20 @@ export const useGameStore = create(
         },
       })),
 
+      startIntermediateSession: () => set((s) => ({
+        sessionScore: 0,
+        sessionAnswers: 0,
+        sessionCorrect: 0,
+        currentStreak: 0,
+        lastFeedback: null,
+        sessionStartTime: Date.now(),
+        sessionComplete: false,
+        progress: {
+          ...s.progress,
+          intermediate: { ...s.progress.intermediate, unicornLevel: 0 },
+        },
+      })),
+
       // ── Badge saving ────────────────────────────────────────────────────
       saveBadge: () => {
         const { currentPlayerId, selectedCharacter, difficultyLevel, sessionStartTime, playerRecords } = get()
@@ -330,7 +391,8 @@ export const useGameStore = create(
           else if (responseTimeMs <= slowThreshold * 1000) unicornDelta = 1
           else unicornDelta = 0
         }
-        const unicornLevel = currentMode === 'beginner'
+        const hasCharacterProgression = currentMode === 'beginner' || currentMode === 'intermediate'
+        const unicornLevel = hasCharacterProgression
           ? Math.max(0, Math.min(50, prevUnicorn + unicornDelta))
           : prevUnicorn
 
@@ -348,7 +410,7 @@ export const useGameStore = create(
               correctAnswers: modeProgress.correctAnswers + (correct ? 1 : 0),
               streak:     newStreak,
               bestStreak: bestStreak,
-              ...(currentMode === 'beginner' ? { unicornLevel } : {}),
+              ...(hasCharacterProgression ? { unicornLevel } : {}),
             },
           },
         }))
@@ -357,7 +419,7 @@ export const useGameStore = create(
         setTimeout(() => set({ lastFeedback: null }), 500)
 
         // Check if unicorn reached 50
-        if (currentMode === 'beginner' && unicornLevel >= 50 && prevUnicorn < 50) {
+        if (hasCharacterProgression && unicornLevel >= 50 && prevUnicorn < 50) {
           setTimeout(() => get().saveBadge(), 1500)
         }
       },

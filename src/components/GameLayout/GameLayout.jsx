@@ -59,9 +59,11 @@ export default function GameLayout({ children, onExit }) {
 
   const isDark = useGameStore((s) => s.theme === 'dark')
 
-  const unicornLevel = useGameStore((s) =>
-    s.currentMode === 'beginner' ? (s.progress.beginner.unicornLevel ?? 0) : 0,
-  )
+  const unicornLevel = useGameStore((s) => {
+    if (s.currentMode === 'beginner') return s.progress.beginner.unicornLevel ?? 0
+    if (s.currentMode === 'intermediate') return s.progress.intermediate?.unicornLevel ?? 0
+    return 0
+  })
 
   const theme = usePageTheme(isDark ? unicornLevel : 0)
 

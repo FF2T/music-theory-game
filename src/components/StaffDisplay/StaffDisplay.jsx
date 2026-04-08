@@ -26,7 +26,7 @@ export default function StaffDisplay({
       if (mode === 'single' && noteKey) {
         drawSingleNote(el, noteKey, duration)
       } else if (mode === 'interval' && keys.length === 2) {
-        drawInterval(el, keys[0], keys[1])
+        drawInterval(el, keys[0], keys[1], clef)
       } else if (mode === 'chord' && keys.length > 0) {
         drawChord(el, keys)
       } else if (mode === 'sequence' && keys.length > 0) {
