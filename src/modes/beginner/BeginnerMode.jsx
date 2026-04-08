@@ -219,7 +219,7 @@ export default function BeginnerMode() {
   const unicornLevel = useGameStore((s) => s.progress.beginner.unicornLevel ?? 0)
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const sessionComplete = useGameStore((s) => s.sessionComplete)
-  const { playSuccess, playFailure, playNote } = useAudio()
+  const { playFailure, playNote } = useAudio()
 
   const { elapsed, startTime } = useChrono(!busy ? chronoKey : false)
   const sessionElapsed = useSessionTimer()
@@ -262,36 +262,37 @@ export default function BeginnerMode() {
       recordAnswer({ correct: isCorrect, exerciseId: 'note-reading', responseTimeMs })
       recordNoteError(noteKey, isCorrect)
 
-      playNote(current.target.midi, '4n')
-
       if (isCorrect) {
-        playSuccess()
+        playNote(current.target.midi, '4n')
         setWrongAnswer(null)
+
+        const newResults = [...results, 'correct']
+        setResults(newResults)
+
+        const isLast = currentIdx >= NOTES_PER_STAFF - 1
+        setTimeout(() => {
+          setWrongAnswer(null)
+          if (isLast) {
+            setTimeout(() => startNext(), 400)
+          } else {
+            setCurrentIdx((i) => i + 1)
+            setBusy(false)
+            setChronoKey((k) => k + 1)
+          }
+        }, 350)
       } else {
         playFailure()
         if (answeredMidi && answeredMidi !== current.target.midi) {
           setWrongAnswer(answeredMidi)
         }
-      }
-
-      const newResults = [...results, isCorrect ? 'correct' : 'wrong']
-      setResults(newResults)
-
-      const isLast = currentIdx >= NOTES_PER_STAFF - 1
-      const feedbackDelay = isCorrect ? 350 : 800
-
-      setTimeout(() => {
-        setWrongAnswer(null)
-        if (isLast) {
-          setTimeout(() => startNext(), 400)
-        } else {
-          setCurrentIdx((i) => i + 1)
+        // Don't record wrong in results or advance — stay on the same note
+        setTimeout(() => {
+          setWrongAnswer(null)
           setBusy(false)
-          setChronoKey((k) => k + 1)
-        }
-      }, feedbackDelay)
+        }, 800)
+      }
     },
-    [busy, sessionComplete, currentIdx, results, sequence, clef, startTime, recordAnswer, recordNoteError, playSuccess, playFailure, playNote, startNext],
+    [busy, sessionComplete, currentIdx, results, sequence, clef, startTime, recordAnswer, recordNoteError, playFailure, playNote, startNext],
   )
 
   const handlePianoClick = useCallback(

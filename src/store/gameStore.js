@@ -79,15 +79,74 @@ export const DIFFICULTY_CONFIGS = {
 
 const RACE_PILOT_THRESHOLD_MS = 6 * 60 * 1000 // 6 minutes
 
+// Badge titles vary by difficulty – each character earns a different name
+export const BADGE_TITLES = {
+  facile: {
+    unicorn: 'Bébé Licorne',  cat: 'Petit Chaton',   dragon: 'Bébé Dragon',
+    bunny:   'Petit Lapin',   panda: 'Bébé Panda',   dolphin: 'Petit Dauphin',
+  },
+  normal: {
+    unicorn: 'Licorne',       cat: 'Chaton',          dragon: 'Dragon',
+    bunny:   'Lapin',         panda: 'Panda',         dolphin: 'Dauphin',
+  },
+  difficile: {
+    unicorn: 'Licorne Magique', cat: 'Chaton Ninja',  dragon: 'Dragon de Feu',
+    bunny:   'Lapin Véloce',    panda: 'Panda Guerrier', dolphin: 'Dauphin Acrobate',
+  },
+  expert: {
+    unicorn: 'Licorne Céleste', cat: 'Chaton Suprême', dragon: 'Dragon Ancestral',
+    bunny:   'Lapin Cosmique',  panda: 'Panda Maître', dolphin: 'Dauphin Mythique',
+  },
+}
+
+export function getBadgeTitle(characterId, difficulty) {
+  return BADGE_TITLES[difficulty]?.[characterId] || CHARACTERS.find(c => c.id === characterId)?.label || characterId
+}
+
 /**
  * Check legend / race pilot status for a player at a given difficulty.
  * Returns { isLegend, isRacePilot, badgeCount, totalTime }
  */
+/**
+ * Normalise a character badge entry to the new nested format:
+ * { difficulty: { time, date }, ... }
+ * Legacy flat format: { time, difficulty, date } → { [difficulty]: { time, date } }
+ */
+function normaliseBadgeEntry(entry) {
+  if (!entry || typeof entry !== 'object') return {}
+  if (entry.difficulty !== undefined && entry.time !== undefined) {
+    return { [entry.difficulty]: { time: entry.time, date: entry.date } }
+  }
+  return entry
+}
+
+/**
+ * Merge two badge maps (local + cloud), handling both legacy and new formats.
+ * Keeps best time per character per difficulty.
+ */
+function mergeBadges(localBadges, cloudBadges) {
+  const merged = {}
+  const allCharIds = new Set([...Object.keys(localBadges), ...Object.keys(cloudBadges)])
+  for (const charId of allCharIds) {
+    const localEntry = normaliseBadgeEntry(localBadges[charId])
+    const cloudEntry = normaliseBadgeEntry(cloudBadges[charId])
+    const charMerged = { ...localEntry }
+    for (const [diff, record] of Object.entries(cloudEntry)) {
+      if (!charMerged[diff] || record.time < charMerged[diff].time) {
+        charMerged[diff] = record
+      }
+    }
+    merged[charId] = charMerged
+  }
+  return merged
+}
+
 export function getPlayerStatus(playerBadges, difficulty) {
   const matching = {}
-  for (const [charId, record] of Object.entries(playerBadges || {})) {
-    if (record.difficulty === difficulty) {
-      matching[charId] = record
+  for (const [charId, rawEntry] of Object.entries(playerBadges || {})) {
+    const entry = normaliseBadgeEntry(rawEntry)
+    if (entry[difficulty]) {
+      matching[charId] = entry[difficulty]
     }
   }
   const badgeCount = Object.keys(matching).length
@@ -166,27 +225,33 @@ export const useGameStore = create(
         if (!currentPlayerId || !sessionStartTime) return
 
         const timeMs = Date.now() - sessionStartTime
-        const existing = playerRecords[currentPlayerId]?.badges?.[selectedCharacter]
+        const normalised = normaliseBadgeEntry(playerRecords[currentPlayerId]?.badges?.[selectedCharacter])
+        const existing = normalised[difficultyLevel]
 
         // Save if new badge or better time
         if (!existing || timeMs < existing.time) {
-          set((s) => ({
-            playerRecords: {
-              ...s.playerRecords,
-              [currentPlayerId]: {
-                ...s.playerRecords[currentPlayerId],
-                badges: {
-                  ...(s.playerRecords[currentPlayerId]?.badges || {}),
-                  [selectedCharacter]: {
-                    time: timeMs,
-                    difficulty: difficultyLevel,
-                    date: new Date().toISOString().slice(0, 10),
+          set((s) => {
+            const prev = normaliseBadgeEntry(s.playerRecords[currentPlayerId]?.badges?.[selectedCharacter])
+            return {
+              playerRecords: {
+                ...s.playerRecords,
+                [currentPlayerId]: {
+                  ...s.playerRecords[currentPlayerId],
+                  badges: {
+                    ...(s.playerRecords[currentPlayerId]?.badges || {}),
+                    [selectedCharacter]: {
+                      ...prev,
+                      [difficultyLevel]: {
+                        time: timeMs,
+                        date: new Date().toISOString().slice(0, 10),
+                      },
+                    },
                   },
                 },
               },
-            },
-            sessionComplete: true,
-          }))
+              sessionComplete: true,
+            }
+          })
           // Sync to cloud
           const state = get()
           saveToCloud(state.players, state.playerRecords)
@@ -324,23 +389,17 @@ export const useGameStore = create(
         for (const p of cloudPlayers) mergedMap.set(p.id, p)
         const mergedPlayers = [...mergedMap.values()]
 
-        // Merge records: keep best time per badge
+        // Merge records: keep best time per badge per difficulty
         const localRecords = get().playerRecords || {}
         const cloudRecords = data.playerRecords || {}
         const mergedRecords = { ...localRecords }
         for (const [playerId, pData] of Object.entries(cloudRecords)) {
           if (!mergedRecords[playerId]) {
-            mergedRecords[playerId] = pData
+            mergedRecords[playerId] = { ...pData, badges: mergeBadges({}, pData.badges || {}) }
           } else {
             const localBadges = mergedRecords[playerId].badges || {}
             const cloudBadges = pData.badges || {}
-            const merged = { ...localBadges }
-            for (const [charId, record] of Object.entries(cloudBadges)) {
-              if (!merged[charId] || record.time < merged[charId].time) {
-                merged[charId] = record
-              }
-            }
-            mergedRecords[playerId] = { ...mergedRecords[playerId], badges: merged }
+            mergedRecords[playerId] = { ...mergedRecords[playerId], badges: mergeBadges(localBadges, cloudBadges) }
           }
         }
 
@@ -361,17 +420,11 @@ export const useGameStore = create(
           const mergedRecords = { ...localRecords }
           for (const [playerId, pData] of Object.entries(cloudRecords)) {
             if (!mergedRecords[playerId]) {
-              mergedRecords[playerId] = pData
+              mergedRecords[playerId] = { ...pData, badges: mergeBadges({}, pData.badges || {}) }
             } else {
               const localBadges = mergedRecords[playerId].badges || {}
               const cloudBadges = pData.badges || {}
-              const merged = { ...localBadges }
-              for (const [charId, record] of Object.entries(cloudBadges)) {
-                if (!merged[charId] || record.time < merged[charId].time) {
-                  merged[charId] = record
-                }
-              }
-              mergedRecords[playerId] = { ...mergedRecords[playerId], badges: merged }
+              mergedRecords[playerId] = { ...mergedRecords[playerId], badges: mergeBadges(localBadges, cloudBadges) }
             }
           }
 
@@ -381,6 +434,21 @@ export const useGameStore = create(
     }),
     {
       name: 'musicmaster-progress',
+      version: 1,
+      migrate: (persisted, version) => {
+        if (version === 0 || version === undefined) {
+          // Migrate badges from flat { time, difficulty, date } to nested { [difficulty]: { time, date } }
+          const records = persisted.playerRecords || {}
+          for (const playerId of Object.keys(records)) {
+            const badges = records[playerId]?.badges
+            if (!badges) continue
+            for (const charId of Object.keys(badges)) {
+              badges[charId] = normaliseBadgeEntry(badges[charId])
+            }
+          }
+        }
+        return persisted
+      },
       partialize: (s) => ({
         progress:          s.progress,
         audioEnabled:      s.audioEnabled,

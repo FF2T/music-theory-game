@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS } from '../../store/gameStore'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerStatus } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 
 export default function CharacterSelector({ onSelect }) {
@@ -10,8 +10,9 @@ export default function CharacterSelector({ onSelect }) {
   const currentPlayerId = useGameStore((s) => s.currentPlayerId)
   const playerRecords = useGameStore((s) => s.playerRecords)
 
-  // Show which characters already have badges for this player
-  const badges = playerRecords[currentPlayerId]?.badges || {}
+  // Show which characters already have badges for this player at selected difficulty
+  const allBadges = playerRecords[currentPlayerId]?.badges || {}
+  const status = getPlayerStatus(allBadges, difficultyLevel)
 
   function handleConfirm() {
     onSelect(selectedCharacter)
@@ -32,7 +33,7 @@ export default function CharacterSelector({ onSelect }) {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-lg mb-8">
         {CHARACTERS.map((char) => {
           const isSelected = selectedCharacter === char.id
-          const hasBadge = !!badges[char.id]
+          const hasBadge = !!status.badges[char.id]
           return (
             <button
               key={char.id}
@@ -54,13 +55,13 @@ export default function CharacterSelector({ onSelect }) {
                   ? 'text-primary-700 dark:text-primary-300'
                   : 'text-gray-700 dark:text-gray-300',
               ].join(' ')}>
-                {char.label}
+                {getBadgeTitle(char.id, difficultyLevel)}
               </span>
 
-              {/* Badge indicator */}
+              {/* Badge indicator — only for current difficulty */}
               {hasBadge && (
                 <span className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold">
-                  Badge obtenu
+                  {DIFFICULTY_CONFIGS[difficultyLevel].emoji} Badge obtenu
                 </span>
               )}
 

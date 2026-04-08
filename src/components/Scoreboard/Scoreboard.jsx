@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Trophy, Crown, Gauge } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus } from '../../store/gameStore'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus, getBadgeTitle } from '../../store/gameStore'
 
 function LegendName({ name }) {
   return (
@@ -128,12 +128,13 @@ export default function Scoreboard() {
                 <div className="flex flex-wrap gap-1.5">
                   {CHARACTERS.map((char) => {
                     const record = player.badges[char.id]
+                    const title = getBadgeTitle(char.id, selectedDiff)
                     if (!record) {
                       return (
                         <span
                           key={char.id}
                           className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-300 dark:text-gray-500 text-xs opacity-40"
-                          title={`${char.label} - non obtenu`}
+                          title={`${title} - non obtenu`}
                         >
                           <span className="grayscale">{char.emoji}</span>
                         </span>
@@ -143,7 +144,7 @@ export default function Scoreboard() {
                       <span
                         key={char.id}
                         className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 text-xs"
-                        title={`${char.label} - ${formatTime(record.time)}`}
+                        title={`${title} - ${formatTime(record.time)}`}
                       >
                         <span>{char.emoji}</span>
                         <span className="font-mono font-semibold text-gray-700 dark:text-gray-200">
