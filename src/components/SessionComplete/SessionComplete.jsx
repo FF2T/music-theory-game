@@ -6,6 +6,7 @@ import CharacterReward from '../CharacterReward/CharacterReward'
 
 export default function SessionComplete({ onContinue }) {
   const currentPlayerId = useGameStore((s) => s.currentPlayerId)
+  const currentMode = useGameStore((s) => s.currentMode)
   const players = useGameStore((s) => s.players)
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const difficultyLevel = useGameStore((s) => s.difficultyLevel)
@@ -22,9 +23,10 @@ export default function SessionComplete({ onContinue }) {
   const player = players.find((p) => p.id === currentPlayerId)
   const charInfo = CHARACTERS.find((c) => c.id === selectedCharacter)
   const diffConfig = DIFFICULTY_CONFIGS[difficultyLevel] || DIFFICULTY_CONFIGS.normal
+  const badgeKey = currentMode === 'intermediate' ? 'intervalBadges' : 'badges'
 
   // Check legend / race pilot status for current difficulty
-  const allBadges = playerRecords[currentPlayerId]?.badges || {}
+  const allBadges = playerRecords[currentPlayerId]?.[badgeKey] || {}
   const status = getPlayerStatus(allBadges, difficultyLevel)
 
   const record = status.badges[selectedCharacter]

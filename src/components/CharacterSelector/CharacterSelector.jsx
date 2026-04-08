@@ -3,7 +3,7 @@ import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerS
 import { Button } from '../ui/Button'
 import Scoreboard from '../Scoreboard/Scoreboard'
 
-export default function CharacterSelector({ onSelect, onBack }) {
+export default function CharacterSelector({ onSelect, onBack, mode = 'beginner' }) {
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const setCharacter = useGameStore((s) => s.setCharacter)
   const difficultyLevel = useGameStore((s) => s.difficultyLevel)
@@ -11,8 +11,10 @@ export default function CharacterSelector({ onSelect, onBack }) {
   const currentPlayerId = useGameStore((s) => s.currentPlayerId)
   const playerRecords = useGameStore((s) => s.playerRecords)
 
+  const badgeKey = mode === 'intermediate' ? 'intervalBadges' : 'badges'
+
   // Show which characters already have badges for this player at selected difficulty
-  const allBadges = playerRecords[currentPlayerId]?.badges || {}
+  const allBadges = playerRecords[currentPlayerId]?.[badgeKey] || {}
   const status = getPlayerStatus(allBadges, difficultyLevel)
 
   function handleConfirm() {
@@ -149,7 +151,7 @@ export default function CharacterSelector({ onSelect, onBack }) {
 
       {/* Scoreboard */}
       <div className="w-full max-w-3xl">
-        <Scoreboard />
+        <Scoreboard badgeKey={badgeKey} />
       </div>
     </div>
   )

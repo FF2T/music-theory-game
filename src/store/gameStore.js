@@ -292,24 +292,25 @@ export const useGameStore = create(
 
       // ── Badge saving ────────────────────────────────────────────────────
       saveBadge: () => {
-        const { currentPlayerId, selectedCharacter, difficultyLevel, sessionStartTime, playerRecords } = get()
+        const { currentPlayerId, selectedCharacter, difficultyLevel, currentMode, sessionStartTime, playerRecords } = get()
         if (!currentPlayerId || !sessionStartTime) return
 
+        const badgeKey = currentMode === 'intermediate' ? 'intervalBadges' : 'badges'
         const timeMs = Date.now() - sessionStartTime
-        const normalised = normaliseBadgeEntry(playerRecords[currentPlayerId]?.badges?.[selectedCharacter])
+        const normalised = normaliseBadgeEntry(playerRecords[currentPlayerId]?.[badgeKey]?.[selectedCharacter])
         const existing = normalised[difficultyLevel]
 
         // Save if new badge or better time
         if (!existing || timeMs < existing.time) {
           set((s) => {
-            const prev = normaliseBadgeEntry(s.playerRecords[currentPlayerId]?.badges?.[selectedCharacter])
+            const prev = normaliseBadgeEntry(s.playerRecords[currentPlayerId]?.[badgeKey]?.[selectedCharacter])
             return {
               playerRecords: {
                 ...s.playerRecords,
                 [currentPlayerId]: {
                   ...s.playerRecords[currentPlayerId],
-                  badges: {
-                    ...(s.playerRecords[currentPlayerId]?.badges || {}),
+                  [badgeKey]: {
+                    ...(s.playerRecords[currentPlayerId]?.[badgeKey] || {}),
                     [selectedCharacter]: {
                       ...prev,
                       [difficultyLevel]: {
@@ -323,10 +324,10 @@ export const useGameStore = create(
               sessionComplete: true,
             }
           })
-          // Sync badge to cloud (targeted write)
+          // Sync to cloud (targeted write for the specific badge set)
           const state = get()
-          const badges = state.playerRecords[currentPlayerId]?.badges
-          if (badges) savePlayerBadges(currentPlayerId, badges)
+          const record = state.playerRecords[currentPlayerId]
+          if (record) savePlayerBadges(currentPlayerId, { badges: record.badges, intervalBadges: record.intervalBadges })
         } else {
           set({ sessionComplete: true })
         }
@@ -468,11 +469,17 @@ export const useGameStore = create(
         const mergedRecords = { ...localRecords }
         for (const [playerId, pData] of Object.entries(cloudRecords)) {
           if (!mergedRecords[playerId]) {
-            mergedRecords[playerId] = { ...pData, badges: mergeBadges({}, pData.badges || {}) }
+            mergedRecords[playerId] = {
+              ...pData,
+              badges: mergeBadges({}, pData.badges || {}),
+              intervalBadges: mergeBadges({}, pData.intervalBadges || {}),
+            }
           } else {
-            const localBadges = mergedRecords[playerId].badges || {}
-            const cloudBadges = pData.badges || {}
-            mergedRecords[playerId] = { ...mergedRecords[playerId], badges: mergeBadges(localBadges, cloudBadges) }
+            mergedRecords[playerId] = {
+              ...mergedRecords[playerId],
+              badges: mergeBadges(mergedRecords[playerId].badges || {}, pData.badges || {}),
+              intervalBadges: mergeBadges(mergedRecords[playerId].intervalBadges || {}, pData.intervalBadges || {}),
+            }
           }
         }
 
@@ -493,11 +500,17 @@ export const useGameStore = create(
           const mergedRecords = { ...localRecords }
           for (const [playerId, pData] of Object.entries(cloudRecords)) {
             if (!mergedRecords[playerId]) {
-              mergedRecords[playerId] = { ...pData, badges: mergeBadges({}, pData.badges || {}) }
+              mergedRecords[playerId] = {
+                ...pData,
+                badges: mergeBadges({}, pData.badges || {}),
+                intervalBadges: mergeBadges({}, pData.intervalBadges || {}),
+              }
             } else {
-              const localBadges = mergedRecords[playerId].badges || {}
-              const cloudBadges = pData.badges || {}
-              mergedRecords[playerId] = { ...mergedRecords[playerId], badges: mergeBadges(localBadges, cloudBadges) }
+              mergedRecords[playerId] = {
+                ...mergedRecords[playerId],
+                badges: mergeBadges(mergedRecords[playerId].badges || {}, pData.badges || {}),
+                intervalBadges: mergeBadges(mergedRecords[playerId].intervalBadges || {}, pData.intervalBadges || {}),
+              }
             }
           }
 

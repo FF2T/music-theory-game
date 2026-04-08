@@ -12,7 +12,7 @@ function LegendName({ name }) {
 
 const DIFF_KEYS = Object.keys(DIFFICULTY_CONFIGS)
 
-export default function Scoreboard() {
+export default function Scoreboard({ badgeKey = 'badges' }) {
   const players = useGameStore((s) => s.players)
   const playerRecords = useGameStore((s) => s.playerRecords)
   const [selectedDiff, setSelectedDiff] = useState('normal')
@@ -21,7 +21,7 @@ export default function Scoreboard() {
 
   // Build scoreboard data for selected difficulty
   const playerData = players.map((player) => {
-    const allBadges = playerRecords[player.id]?.badges || {}
+    const allBadges = playerRecords[player.id]?.[badgeKey] || {}
     const status = getPlayerStatus(allBadges, selectedDiff)
     return { ...player, ...status }
   })

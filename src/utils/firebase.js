@@ -46,11 +46,13 @@ export async function saveToCloud(players, playerRecords) {
  * Save only a specific player's badge (most common write operation).
  * This is safer than saving everything — avoids overwriting other players' data.
  */
-export async function savePlayerBadges(playerId, badges) {
+export async function savePlayerBadges(playerId, badgeData) {
   try {
     const database = getDb()
-    await set(ref(database, `gameData/playerRecords/${playerId}/badges`), badges)
-    await set(ref(database, 'gameData/lastUpdated'), Date.now())
+    const updates = { 'gameData/lastUpdated': Date.now() }
+    if (badgeData.badges) updates[`gameData/playerRecords/${playerId}/badges`] = badgeData.badges
+    if (badgeData.intervalBadges) updates[`gameData/playerRecords/${playerId}/intervalBadges`] = badgeData.intervalBadges
+    await update(ref(database), updates)
   } catch (e) {
     console.warn('[Firebase] save badge error:', e.message)
   }
