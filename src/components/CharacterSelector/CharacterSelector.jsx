@@ -1,9 +1,9 @@
-import { Star } from 'lucide-react'
+import { Star, ArrowLeft } from 'lucide-react'
 import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerStatus } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Scoreboard from '../Scoreboard/Scoreboard'
 
-export default function CharacterSelector({ onSelect }) {
+export default function CharacterSelector({ onSelect, onBack }) {
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const setCharacter = useGameStore((s) => s.setCharacter)
   const difficultyLevel = useGameStore((s) => s.difficultyLevel)
@@ -21,6 +21,19 @@ export default function CharacterSelector({ onSelect }) {
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-3 sm:px-4 py-8 animate-fade-in">
+      {/* Back button */}
+      {onBack && (
+        <div className="fixed top-4 left-4 z-30">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Retour</span>
+          </button>
+        </div>
+      )}
+
       {/* Character selection */}
       <div className="text-center mb-6">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">

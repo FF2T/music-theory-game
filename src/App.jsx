@@ -76,6 +76,7 @@ export default function App() {
   if (screen === 'character-select') {
     return (
       <CharacterSelector
+        onBack={() => setScreen('home')}
         onSelect={() => {
           const mode = pendingMode || 'beginner'
           if (mode === 'intermediate') {
