@@ -12,10 +12,11 @@ function op(level, start, end = start + 4) {
   return (level - start) / (end - start)
 }
 
-export default function DolphinReward({ level = 0 }) {
+export default function DolphinReward({ level = 0, visualCap = 50, badgeTitle = '' }) {
   const l = Math.max(0, Math.min(MAX_LEVEL, level))
-  const colored = l >= 31
-  const animated = l >= 36
+  const v = Math.min(l, visualCap)
+  const colored = v >= 31
+  const animated = v >= 36
   const pct = Math.round((l / MAX_LEVEL) * 100)
 
   const sparkles = useMemo(() =>
@@ -74,12 +75,12 @@ export default function DolphinReward({ level = 0 }) {
         </defs>
 
         {/* Ghost */}
-        <g opacity={l === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
+        <g opacity={v === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
           <path d="M 120 155 C 120 110, 200 90, 270 120 C 310 135, 320 165, 280 180 C 240 195, 140 190, 120 155" />
           <path d="M 280 120 C 310 100, 330 105, 320 125" />
         </g>
 
-        {l >= 50 && (
+        {v >= 50 && (
           <ellipse cx="200" cy="155" rx="170" ry="130" fill="url(#dolbg)">
             <animate attributeName="rx" values="170;180;170" dur="3s" repeatCount="indefinite" />
           </ellipse>
@@ -99,7 +100,7 @@ export default function DolphinReward({ level = 0 }) {
         )}
 
         {/* 1-5: Body */}
-        <g opacity={op(l, 1, 5)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 1, 5)} style={{ transition: 'all 0.8s' }}>
           <path
             d="M 130 150 C 130 115, 185 95, 240 115 C 280 128, 295 150, 285 170 C 275 192, 220 200, 185 198 C 150 196, 130 180, 130 150 Z"
             fill={colored ? 'url(#dolg)' : body} stroke={stroke} strokeWidth="1.8"
@@ -112,7 +113,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 6-10: Head / beak (rostrum) */}
-        <g opacity={op(l, 6, 10)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 6, 10)} style={{ transition: 'all 0.8s' }}>
           {/* Rostrum (beak) */}
           <path d="M 270 140 C 300 128, 330 130, 340 140 C 330 145, 300 148, 270 148"
             fill={colored ? 'url(#dolg)' : body} stroke={stroke} strokeWidth="1.5" />
@@ -124,7 +125,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 11-15: Flippers (pectoral fins) */}
-        <g opacity={op(l, 11, 15)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 11, 15)} style={{ transition: 'all 0.8s' }}>
           {/* Pectoral fin */}
           <path d="M 200 175 C 190 195, 165 215, 155 225 C 150 220, 170 200, 190 178"
             fill={colored ? '#0284c7' : '#888'} stroke={stroke} strokeWidth="1" />
@@ -134,7 +135,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 16-20: Dorsal fin */}
-        <g opacity={op(l, 16, 20)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 16, 20)} style={{ transition: 'all 0.8s' }}>
           <path d="M 210 120 C 215 95, 225 80, 230 75 C 235 80, 240 100, 235 120"
             fill={colored ? '#0284c7' : '#888'} stroke={stroke} strokeWidth="1.2" />
           {colored && (
@@ -143,7 +144,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 21-25: Tail fluke */}
-        <g opacity={op(l, 21, 25)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 21, 25)} style={{ transition: 'all 0.8s' }}>
           <path
             d="M 135 155 C 115 145, 90 130, 75 115 C 85 118, 95 128, 110 140
                M 135 155 C 115 165, 90 175, 75 190 C 85 185, 95 175, 110 165"
@@ -165,7 +166,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 26-30: Eye + blowhole */}
-        <g opacity={op(l, 26, 30)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 26, 30)} style={{ transition: 'all 0.8s' }}>
           {/* Eye */}
           <ellipse cx="268" cy="130" rx="8" ry="9" fill="white" stroke={colored ? '#0c4a6e' : '#444'} strokeWidth="1.5" />
           <ellipse cx="269" cy="129" rx="5.5" ry="6.5" fill={colored ? '#1e3a5f' : '#333'} />
@@ -186,7 +187,7 @@ export default function DolphinReward({ level = 0 }) {
 
         {/* 36-40: Animated swimming + water splash */}
         {animated && (
-          <g opacity={op(l, 36, 40)}>
+          <g opacity={op(v, 36, 40)}>
             {/* Water splash from blowhole */}
             <g opacity="0.5">
               <path d="M 248 105 Q 245 90 240 80" stroke="#7dd3fc" strokeWidth="1.5" fill="none" strokeLinecap="round">
@@ -208,7 +209,7 @@ export default function DolphinReward({ level = 0 }) {
         )}
 
         {/* 41-45: Sparkles + bubbles */}
-        <g opacity={op(l, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
           {sparkles.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r}
               fill={i % 3 === 0 ? '#38bdf8' : i % 3 === 1 ? '#fbbf24' : '#c084fc'} opacity="0.5">
@@ -226,7 +227,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* 46-49: Hearts + stars + fish friends */}
-        <g opacity={op(l, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
           {[{ x: 50, y: 50, c: '#f472b6', s: 0.9 }, { x: 360, y: 35, c: '#38bdf8', s: 0.8 }].map((h, i) => (
             <path key={i}
               d={`M ${h.x} ${h.y + 4 * h.s} C ${h.x - 6 * h.s} ${h.y - 6 * h.s}, ${h.x - 12 * h.s} ${h.y + 2 * h.s}, ${h.x} ${h.y + 12 * h.s} C ${h.x + 12 * h.s} ${h.y + 2 * h.s}, ${h.x + 6 * h.s} ${h.y - 6 * h.s}, ${h.x} ${h.y + 4 * h.s} Z`}
@@ -246,7 +247,7 @@ export default function DolphinReward({ level = 0 }) {
         </g>
 
         {/* Level 50: Crown + rainbow wave */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g>
             <g filter="url(#dolsf)">
               {/* Crown / tiara */}
@@ -264,20 +265,20 @@ export default function DolphinReward({ level = 0 }) {
       </svg>
 
       <p className="text-xs text-center font-medium" style={{
-        color: l >= 50 ? '#0ea5e9' : l >= 30 ? '#38bdf8' : '#9ca3af',
+        color: l >= 50 ? '#0ea5e9' : v >= 30 ? '#38bdf8' : '#9ca3af',
       }}>
-        {l === 0 && 'Réponds correctement pour faire apparaître le dauphin !'}
-        {l >= 1  && l < 6  && 'Un corps hydrodynamique se forme...'}
-        {l >= 6  && l < 11 && 'Un joli bec apparaît !'}
-        {l >= 11 && l < 16 && 'Des nageoires pour glisser dans l\'eau !'}
-        {l >= 16 && l < 21 && 'Un aileron dorsal majestueux !'}
-        {l >= 21 && l < 26 && 'Une belle nageoire caudale !'}
-        {l >= 26 && l < 31 && 'Un œil rieur et un sourire !'}
-        {l >= 31 && l < 36 && 'Un magnifique bleu océan !'}
-        {l >= 36 && l < 41 && 'Il fait des éclaboussures !'}
-        {l >= 41 && l < 46 && 'Des bulles et des étoiles dansent !'}
-        {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '✨ Dauphin Légendaire ! Prince des océans ! ✨'}
+        {l >= 50 && `✨ ${badgeTitle || 'Dauphin'} obtenu ! Prince des océans ! ✨`}
+        {l < 50 && v === 0 && 'Réponds correctement pour faire apparaître le dauphin !'}
+        {l < 50 && v >= 1  && v < 6  && 'Un corps hydrodynamique se forme...'}
+        {l < 50 && v >= 6  && v < 11 && 'Un joli bec apparaît !'}
+        {l < 50 && v >= 11 && v < 16 && 'Des nageoires pour glisser dans l\'eau !'}
+        {l < 50 && v >= 16 && v < 21 && 'Un aileron dorsal majestueux !'}
+        {l < 50 && v >= 21 && v < 26 && 'Une belle nageoire caudale !'}
+        {l < 50 && v >= 26 && v < 31 && 'Un œil rieur et un sourire !'}
+        {l < 50 && v >= 31 && v < 36 && 'Un magnifique bleu océan !'}
+        {l < 50 && v >= 36 && v < 41 && 'Il fait des éclaboussures !'}
+        {l < 50 && v >= 41 && v < 46 && 'Des bulles et des étoiles dansent !'}
+        {l < 50 && v >= 46 && 'Presque légendaire... encore un effort !'}
       </p>
     </div>
   )

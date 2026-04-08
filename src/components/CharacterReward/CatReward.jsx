@@ -26,10 +26,11 @@ function op(level, start, end = start + 4) {
   return (level - start) / (end - start)
 }
 
-export default function CatReward({ level = 0 }) {
+export default function CatReward({ level = 0, visualCap = 50, badgeTitle = '' }) {
   const l = Math.max(0, Math.min(MAX_LEVEL, level))
-  const colored = l >= 31
-  const animated = l >= 36
+  const v = Math.min(l, visualCap)
+  const colored = v >= 31
+  const animated = v >= 36
   const pct = Math.round((l / MAX_LEVEL) * 100)
 
   const sparkles = useMemo(() =>
@@ -79,7 +80,7 @@ export default function CatReward({ level = 0 }) {
         </defs>
 
         {/* Level 0: Ghost */}
-        <g opacity={l === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
+        <g opacity={v === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
           <ellipse cx="200" cy="170" rx="65" ry="50" />
           <circle cx="200" cy="100" r="40" />
           <line x1="155" y1="215" x2="155" y2="255" />
@@ -87,20 +88,20 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* Level 50: Background glow */}
-        {l >= 50 && (
+        {v >= 50 && (
           <ellipse cx="200" cy="160" rx="170" ry="135" fill="url(#cg)">
             <animate attributeName="rx" values="170;180;170" dur="3s" repeatCount="indefinite" />
           </ellipse>
         )}
 
         {/* 1-5: Body */}
-        <g opacity={op(l, 1, 5)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 1, 5)} style={{ transition: 'all 0.8s' }}>
           <ellipse cx="200" cy="175" rx="68" ry="48" fill={body} stroke={stroke} strokeWidth="1.8" />
           {colored && <ellipse cx="200" cy="180" rx="40" ry="25" fill="white" opacity="0.2" />}
         </g>
 
         {/* 6-10: Head */}
-        <g opacity={op(l, 6, 10)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 6, 10)} style={{ transition: 'all 0.8s' }}>
           <circle cx="200" cy="105" r="42" fill={body} stroke={stroke} strokeWidth="1.8" />
           {/* Cheeks */}
           {colored && (
@@ -112,7 +113,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* 11-15: Legs */}
-        <g opacity={op(l, 11, 15)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 11, 15)} style={{ transition: 'all 0.8s' }}>
           {[155, 175, 220, 240].map((x, i) => (
             <g key={i}>
               <rect x={x - 8} y="215" width="16" height="35" rx="8" fill={body} stroke={stroke} strokeWidth="1.2" />
@@ -129,7 +130,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* 16-20: Tail */}
-        <g opacity={op(l, 16, 20)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 16, 20)} style={{ transition: 'all 0.8s' }}>
           <path
             d="M 265 170 C 300 150, 320 130, 310 100 C 330 90, 340 110, 325 130"
             stroke={tail} strokeWidth={animated ? 6 : 4.5} fill="none" strokeLinecap="round"
@@ -144,7 +145,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* 21-25: Ears + whiskers */}
-        <g opacity={op(l, 21, 25)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 21, 25)} style={{ transition: 'all 0.8s' }}>
           {/* Ears */}
           <path d="M 172 72 L 162 35 L 190 65 Z" fill={body} stroke={stroke} strokeWidth="1.5" />
           <path d="M 228 72 L 238 35 L 210 65 Z" fill={body} stroke={stroke} strokeWidth="1.5" />
@@ -166,7 +167,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* 26-30: Eyes + nose + mouth */}
-        <g opacity={op(l, 26, 30)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 26, 30)} style={{ transition: 'all 0.8s' }}>
           {/* Eyes */}
           {[185, 215].map((cx, i) => (
             <g key={i}>
@@ -186,7 +187,7 @@ export default function CatReward({ level = 0 }) {
 
         {/* 36-40: Purr marks */}
         {animated && (
-          <g opacity={op(l, 36, 40)}>
+          <g opacity={op(v, 36, 40)}>
             {[{ x: 150, y: 100 }, { x: 250, y: 100 }].map((p, i) => (
               <g key={i} opacity="0.3">
                 <path d={`M ${p.x - 8} ${p.y} Q ${p.x - 4} ${p.y - 4} ${p.x} ${p.y}`} stroke="#f59e0b" strokeWidth="1.5" fill="none">
@@ -207,7 +208,7 @@ export default function CatReward({ level = 0 }) {
         )}
 
         {/* 41-45: Sparkles + yarn + paw prints */}
-        <g opacity={op(l, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
           {sparkles.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r}
               fill={i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#f9a8d4' : '#fb923c'} opacity="0.6">
@@ -233,7 +234,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* 46-49: Hearts + fish + butterflies */}
-        <g opacity={op(l, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
           {[{ x: 50, y: 50, c: '#f472b6', s: 1 }, { x: 350, y: 45, c: '#fb7185', s: 0.8 }].map((h, i) => (
             <path key={i}
               d={`M ${h.x} ${h.y + 4 * h.s} C ${h.x - 6 * h.s} ${h.y - 6 * h.s}, ${h.x - 12 * h.s} ${h.y + 2 * h.s}, ${h.x} ${h.y + 12 * h.s} C ${h.x + 12 * h.s} ${h.y + 2 * h.s}, ${h.x + 6 * h.s} ${h.y - 6 * h.s}, ${h.x} ${h.y + 4 * h.s} Z`}
@@ -251,7 +252,7 @@ export default function CatReward({ level = 0 }) {
         </g>
 
         {/* Level 50: Golden bow + glow */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g filter="url(#cf)">
             <path d="M 190 135 Q 200 130 210 135 Q 215 140 210 145 Q 200 150 190 145 Q 185 140 190 135 Z" fill="#fbbf24" stroke="#f59e0b" strokeWidth="0.8" />
             <path d="M 190 135 Q 200 130 210 135 Q 205 140 200 140 Q 195 140 190 135 Z" fill="#fde68a" opacity="0.6" />
@@ -262,20 +263,20 @@ export default function CatReward({ level = 0 }) {
 
       {/* Status text */}
       <p className="text-xs text-center font-medium" style={{
-        color: l >= 50 ? '#f59e0b' : l >= 30 ? '#fb923c' : '#9ca3af',
+        color: l >= 50 ? '#f59e0b' : v >= 30 ? '#fb923c' : '#9ca3af',
       }}>
-        {l === 0 && 'Réponds correctement pour faire apparaître le chaton !'}
-        {l >= 1  && l < 6  && 'Un petit corps tout rond...'}
-        {l >= 6  && l < 11 && 'Oh ! Une tête toute ronde !'}
-        {l >= 11 && l < 16 && 'Il se tient sur ses pattes !'}
-        {l >= 16 && l < 21 && 'Une jolie queue touffue...'}
-        {l >= 21 && l < 26 && 'Des oreilles pointues et des moustaches !'}
-        {l >= 26 && l < 31 && 'De grands yeux curieux !'}
-        {l >= 31 && l < 36 && 'Un beau pelage orange apparaît !'}
-        {l >= 36 && l < 41 && 'Il ronronne de bonheur !'}
-        {l >= 41 && l < 46 && 'Il joue avec sa pelote !'}
-        {l >= 46 && l < 50 && 'Presque un chat royal... encore un effort !'}
-        {l >= 50 && '✨ Chat Légendaire ! Miaou champion(ne) ! ✨'}
+        {l >= 50 && `✨ ${badgeTitle || 'Chaton'} obtenu ! Miaou champion(ne) ! ✨`}
+        {l < 50 && v === 0 && 'Réponds correctement pour faire apparaître le chaton !'}
+        {l < 50 && v >= 1  && v < 6  && 'Un petit corps tout rond...'}
+        {l < 50 && v >= 6  && v < 11 && 'Oh ! Une tête toute ronde !'}
+        {l < 50 && v >= 11 && v < 16 && 'Il se tient sur ses pattes !'}
+        {l < 50 && v >= 16 && v < 21 && 'Une jolie queue touffue...'}
+        {l < 50 && v >= 21 && v < 26 && 'Des oreilles pointues et des moustaches !'}
+        {l < 50 && v >= 26 && v < 31 && 'De grands yeux curieux !'}
+        {l < 50 && v >= 31 && v < 36 && 'Un beau pelage orange apparaît !'}
+        {l < 50 && v >= 36 && v < 41 && 'Il ronronne de bonheur !'}
+        {l < 50 && v >= 41 && v < 46 && 'Il joue avec sa pelote !'}
+        {l < 50 && v >= 46 && 'Presque un chat royal... encore un effort !'}
       </p>
     </div>
   )

@@ -513,7 +513,7 @@ export default function BeginnerMode() {
             className="glass rounded-2xl p-3 sm:p-4"
             style={panelStyle()}
           >
-            <CharacterReward character={selectedCharacter} level={unicornLevel} />
+            <CharacterReward character={selectedCharacter} level={unicornLevel} difficulty={difficultyLevel} />
           </div>
         </div>
       </div>

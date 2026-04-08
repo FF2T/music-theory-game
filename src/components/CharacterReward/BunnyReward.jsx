@@ -12,10 +12,11 @@ function op(level, start, end = start + 4) {
   return (level - start) / (end - start)
 }
 
-export default function BunnyReward({ level = 0 }) {
+export default function BunnyReward({ level = 0, visualCap = 50, badgeTitle = '' }) {
   const l = Math.max(0, Math.min(MAX_LEVEL, level))
-  const colored = l >= 31
-  const animated = l >= 36
+  const v = Math.min(l, visualCap)
+  const colored = v >= 31
+  const animated = v >= 36
   const pct = Math.round((l / MAX_LEVEL) * 100)
 
   const sparkles = useMemo(() =>
@@ -63,27 +64,27 @@ export default function BunnyReward({ level = 0 }) {
         </defs>
 
         {/* Ghost */}
-        <g opacity={l === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
+        <g opacity={v === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
           <ellipse cx="200" cy="175" rx="55" ry="50" />
           <circle cx="200" cy="110" r="35" />
           <line x1="185" y1="55" x2="185" y2="15" />
           <line x1="215" y1="55" x2="215" y2="15" />
         </g>
 
-        {l >= 50 && (
+        {v >= 50 && (
           <ellipse cx="200" cy="155" rx="165" ry="130" fill="url(#bg)">
             <animate attributeName="rx" values="165;175;165" dur="3s" repeatCount="indefinite" />
           </ellipse>
         )}
 
         {/* 1-5: Body */}
-        <g opacity={op(l, 1, 5)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 1, 5)} style={{ transition: 'all 0.8s' }}>
           <ellipse cx="200" cy="185" rx="58" ry="50" fill={body} stroke={stroke} strokeWidth="1.8" />
           {colored && <ellipse cx="200" cy="190" rx="35" ry="30" fill="white" opacity="0.25" />}
         </g>
 
         {/* 6-10: Head */}
-        <g opacity={op(l, 6, 10)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 6, 10)} style={{ transition: 'all 0.8s' }}>
           <circle cx="200" cy="118" r="40" fill={body} stroke={stroke} strokeWidth="1.8" />
           {/* Puffy cheeks */}
           {colored && (
@@ -95,7 +96,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* 11-15: Legs + fluffy tail */}
-        <g opacity={op(l, 11, 15)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 11, 15)} style={{ transition: 'all 0.8s' }}>
           {/* Back legs (big, round) */}
           {[170, 230].map((x, i) => (
             <g key={i}>
@@ -124,7 +125,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* 16-20: Long ears */}
-        <g opacity={op(l, 16, 20)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 16, 20)} style={{ transition: 'all 0.8s' }}>
           {/* Left ear */}
           <path d="M 185 82 C 178 40, 172 5, 178 15 C 172 -5, 188 10, 190 30 C 192 10, 198 -5, 195 15 C 200 5, 196 40, 192 82"
             fill={body} stroke={stroke} strokeWidth="1.5" />
@@ -150,7 +151,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* 21-25: Buck teeth + nose details */}
-        <g opacity={op(l, 21, 25)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 21, 25)} style={{ transition: 'all 0.8s' }}>
           {/* Nose */}
           <ellipse cx="200" cy="128" rx="5" ry="4" fill={nose} />
           {/* Nose shine */}
@@ -166,7 +167,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* 26-30: Big kawaii eyes */}
-        <g opacity={op(l, 26, 30)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 26, 30)} style={{ transition: 'all 0.8s' }}>
           {[184, 216].map((cx, i) => (
             <g key={i}>
               <ellipse cx={cx} cy="115" rx="10" ry="11" fill="white" stroke={colored ? '#9d174d' : '#444'} strokeWidth="1.5" />
@@ -183,7 +184,7 @@ export default function BunnyReward({ level = 0 }) {
 
         {/* 36-40: Animated bounce + nose twitch */}
         {animated && (
-          <g opacity={op(l, 36, 40)}>
+          <g opacity={op(v, 36, 40)}>
             {/* Whisker-like motion lines */}
             {[{ x: 168, y: 128, d: -1 }, { x: 232, y: 128, d: 1 }].map((w, i) => (
               <g key={i} opacity="0.3">
@@ -201,7 +202,7 @@ export default function BunnyReward({ level = 0 }) {
         )}
 
         {/* 41-45: Sparkles + carrots */}
-        <g opacity={op(l, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
           {sparkles.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r}
               fill={i % 3 === 0 ? '#f9a8d4' : i % 3 === 1 ? '#fbbf24' : '#f472b6'} opacity="0.5">
@@ -222,7 +223,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* 46-49: Hearts + clovers */}
-        <g opacity={op(l, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
           {[{ x: 50, y: 55, c: '#f472b6', s: 1 }, { x: 355, y: 40, c: '#ec4899', s: 0.8 },
             { x: 365, y: 185, c: '#fb7185', s: 0.7 }].map((h, i) => (
             <path key={i}
@@ -234,7 +235,7 @@ export default function BunnyReward({ level = 0 }) {
         </g>
 
         {/* Level 50: Flower crown */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g filter="url(#bf)">
             {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
               const rad = (angle * Math.PI) / 180
@@ -256,20 +257,20 @@ export default function BunnyReward({ level = 0 }) {
       </svg>
 
       <p className="text-xs text-center font-medium" style={{
-        color: l >= 50 ? '#ec4899' : l >= 30 ? '#f472b6' : '#9ca3af',
+        color: l >= 50 ? '#ec4899' : v >= 30 ? '#f472b6' : '#9ca3af',
       }}>
-        {l === 0 && 'Réponds correctement pour faire apparaître le lapin !'}
-        {l >= 1  && l < 6  && 'Une petite boule de poils...'}
-        {l >= 6  && l < 11 && 'Oh ! Une tête toute douce !'}
-        {l >= 11 && l < 16 && 'Des petites pattes et une queue pompon !'}
-        {l >= 16 && l < 21 && 'De grandes oreilles se déplient !'}
-        {l >= 21 && l < 26 && 'Un petit nez et des dents trop mignonnes !'}
-        {l >= 26 && l < 31 && 'De grands yeux tout ronds !'}
-        {l >= 31 && l < 36 && 'Un pelage rose tout doux !'}
-        {l >= 36 && l < 41 && 'Son nez frétille de joie !'}
-        {l >= 41 && l < 46 && 'Il grignote une carotte !'}
-        {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '✨ Lapin Légendaire ! Roi de la prairie ! ✨'}
+        {l >= 50 && `✨ ${badgeTitle || 'Lapin'} obtenu ! Roi de la prairie ! ✨`}
+        {l < 50 && v === 0 && 'Réponds correctement pour faire apparaître le lapin !'}
+        {l < 50 && v >= 1  && v < 6  && 'Une petite boule de poils...'}
+        {l < 50 && v >= 6  && v < 11 && 'Oh ! Une tête toute douce !'}
+        {l < 50 && v >= 11 && v < 16 && 'Des petites pattes et une queue pompon !'}
+        {l < 50 && v >= 16 && v < 21 && 'De grandes oreilles se déplient !'}
+        {l < 50 && v >= 21 && v < 26 && 'Un petit nez et des dents trop mignonnes !'}
+        {l < 50 && v >= 26 && v < 31 && 'De grands yeux tout ronds !'}
+        {l < 50 && v >= 31 && v < 36 && 'Un pelage rose tout doux !'}
+        {l < 50 && v >= 36 && v < 41 && 'Son nez frétille de joie !'}
+        {l < 50 && v >= 41 && v < 46 && 'Il grignote une carotte !'}
+        {l < 50 && v >= 46 && 'Presque légendaire... encore un effort !'}
       </p>
     </div>
   )

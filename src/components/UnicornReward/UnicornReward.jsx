@@ -37,10 +37,11 @@ function starPoints(cx, cy, R, r) {
   return pts.join(' ')
 }
 
-export default function UnicornReward({ level = 0 }) {
+export default function UnicornReward({ level = 0, visualCap = 50, badgeTitle = '' }) {
   const l = Math.max(0, Math.min(MAX_LEVEL, level))
-  const colored = l >= 31
-  const rainbow = l >= 36
+  const v = Math.min(l, visualCap) // visual level capped by difficulty
+  const colored = v >= 31
+  const rainbow = v >= 36
   const pct = Math.round((l / MAX_LEVEL) * 100)
 
   // stable sparkle positions
@@ -123,7 +124,7 @@ export default function UnicornReward({ level = 0 }) {
         </defs>
 
         {/* ════════ LEVEL 0 : Ghost outline ════════ */}
-        <g opacity={l === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
+        <g opacity={v === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
           {/* body */}
           <ellipse cx="190" cy="162" rx="72" ry="48" />
           {/* head */}
@@ -138,7 +139,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 50 : Background glow ════════ */}
-        {l >= 50 && (
+        {v >= 50 && (
           <ellipse cx="200" cy="155" rx="175" ry="140" fill="url(#ugr)">
             <animate attributeName="rx" values="175;185;175" dur="3s" repeatCount="indefinite" />
             <animate attributeName="ry" values="140;150;140" dur="3s" repeatCount="indefinite" />
@@ -146,7 +147,7 @@ export default function UnicornReward({ level = 0 }) {
         )}
 
         {/* ════════ LEVEL 50 : Wings (behind body) ════════ */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g opacity="0.85">
             {/* Upper wing */}
             <path
@@ -168,7 +169,7 @@ export default function UnicornReward({ level = 0 }) {
         )}
 
         {/* ════════ LEVEL 1-5 : Body ════════ */}
-        <g opacity={op(l, 1, 5)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 1, 5)} style={{ transition: 'all 0.8s' }}>
           {/* Main body — chubby bean */}
           <path
             d="M 120 155 C 120 120, 165 108, 210 115 C 255 122, 270 145, 265 165
@@ -182,7 +183,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 6-10 : Head + Neck ════════ */}
-        <g opacity={op(l, 6, 10)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 6, 10)} style={{ transition: 'all 0.8s' }}>
           {/* Neck — thick soft connector */}
           <path
             d="M 240 135 C 255 125, 265 112, 272 100"
@@ -205,7 +206,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 11-15 : Legs ════════ */}
-        <g opacity={op(l, 11, 15)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 11, 15)} style={{ transition: 'all 0.8s' }}>
           {/* Front legs */}
           {[{ x: 225, a: 2 }, { x: 242, a: 0 }].map((leg, i) => (
             <g key={`f${i}`}>
@@ -229,7 +230,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 16-20 : Tail ════════ */}
-        <g opacity={op(l, 16, 20)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 16, 20)} style={{ transition: 'all 0.8s' }}>
           {/* Thick flowing tail with 3 waves */}
           <path
             d="M 125 150 C 100 125, 80 130, 72 148
@@ -263,7 +264,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 21-25 : Mane ════════ */}
-        <g opacity={op(l, 21, 25)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 21, 25)} style={{ transition: 'all 0.8s' }}>
           {/* Main mane flow — cascading waves */}
           <path
             d="M 278 60 C 260 55, 252 65, 255 80
@@ -297,7 +298,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 26-30 : Horn + Ears + Eye ════════ */}
-        <g opacity={op(l, 26, 30)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 26, 30)} style={{ transition: 'all 0.8s' }}>
           {/* Ears */}
           <path d="M 268 62 L 262 42 L 280 58 Z"
             fill={colored ? '#f3e8ff' : '#8b8fa0'} stroke={stroke} strokeWidth="1.2"
@@ -316,7 +317,7 @@ export default function UnicornReward({ level = 0 }) {
           <path d="M 282 60 C 284 42, 290 28, 295 10"
             stroke={colored ? '#f59e0b' : '#999'} strokeWidth="3.5"
             fill="none" strokeLinecap="round"
-            filter={l >= 50 ? 'url(#ugSoft)' : undefined}
+            filter={v >= 50 ? 'url(#ugSoft)' : undefined}
           />
           <path d="M 282 60 C 286 42, 292 28, 295 10"
             stroke={horn} strokeWidth="7" fill="none" strokeLinecap="round"
@@ -372,7 +373,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 41-45 : Stars + Sparkles + Musical notes ════════ */}
-        <g opacity={op(l, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
           {sparkles.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r}
               fill={i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#f9a8d4' : '#a5b4fc'} opacity="0.6">
@@ -407,7 +408,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 46-49 : Flowers + Hearts + Butterflies ════════ */}
-        <g opacity={op(l, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
           {/* Flowers */}
           {[{ x: 370, y: 245, c: '#f9a8d4' }, { x: 20, y: 260, c: '#c4b5fd' }, { x: 50, y: 80, c: '#93c5fd' }].map((f, i) => (
             <g key={`fl${i}`} transform={`translate(${f.x},${f.y})`}>
@@ -455,7 +456,7 @@ export default function UnicornReward({ level = 0 }) {
         </g>
 
         {/* ════════ LEVEL 50 : Crown + extra glow ════════ */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g>
             {/* Crown */}
             <g filter="url(#ugSoft)">
@@ -488,20 +489,20 @@ export default function UnicornReward({ level = 0 }) {
 
       {/* ── Status text ── */}
       <p className="text-xs text-center font-medium" style={{
-        color: l >= 50 ? '#fbbf24' : l >= 30 ? '#c084fc' : '#9ca3af',
+        color: l >= 50 ? '#fbbf24' : v >= 30 ? '#c084fc' : '#9ca3af',
       }}>
-        {l === 0 && 'Réponds correctement pour faire apparaître la licorne !'}
-        {l >= 1  && l < 6  && 'Un corps apparaît dans la brume...'}
-        {l >= 6  && l < 11 && 'Oh ! Une tête toute mignonne !'}
-        {l >= 11 && l < 16 && 'Elle se tient sur ses pattes !'}
-        {l >= 16 && l < 21 && 'Une belle queue ondulante...'}
-        {l >= 21 && l < 26 && 'Sa crinière se déploie !'}
-        {l >= 26 && l < 31 && 'Une corne magique et de grands yeux !'}
-        {l >= 31 && l < 36 && 'Les couleurs pastel la rendent magnifique !'}
-        {l >= 36 && l < 41 && 'Sa crinière brille de toutes les couleurs !'}
-        {l >= 41 && l < 46 && 'Des étoiles dansent autour d\'elle !'}
-        {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '✨ Licorne Légendaire ! Tu es un(e) champion(ne) ! ✨'}
+        {l >= 50 && `✨ ${badgeTitle || 'Licorne'} obtenue ! Champion(ne) ! ✨`}
+        {l < 50 && v === 0 && 'Réponds correctement pour faire apparaître la licorne !'}
+        {l < 50 && v >= 1  && v < 6  && 'Un corps apparaît dans la brume...'}
+        {l < 50 && v >= 6  && v < 11 && 'Oh ! Une tête toute mignonne !'}
+        {l < 50 && v >= 11 && v < 16 && 'Elle se tient sur ses pattes !'}
+        {l < 50 && v >= 16 && v < 21 && 'Une belle queue ondulante...'}
+        {l < 50 && v >= 21 && v < 26 && 'Sa crinière se déploie !'}
+        {l < 50 && v >= 26 && v < 31 && 'Une corne magique et de grands yeux !'}
+        {l < 50 && v >= 31 && v < 36 && 'Les couleurs pastel la rendent magnifique !'}
+        {l < 50 && v >= 36 && v < 41 && 'Sa crinière brille de toutes les couleurs !'}
+        {l < 50 && v >= 41 && v < 46 && 'Des étoiles dansent autour d\'elle !'}
+        {l < 50 && v >= 46 && 'Presque légendaire... encore un effort !'}
       </p>
     </div>
   )

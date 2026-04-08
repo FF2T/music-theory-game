@@ -12,10 +12,11 @@ function op(level, start, end = start + 4) {
   return (level - start) / (end - start)
 }
 
-export default function PandaReward({ level = 0 }) {
+export default function PandaReward({ level = 0, visualCap = 50, badgeTitle = '' }) {
   const l = Math.max(0, Math.min(MAX_LEVEL, level))
-  const colored = l >= 31
-  const animated = l >= 36
+  const v = Math.min(l, visualCap)
+  const colored = v >= 31
+  const animated = v >= 36
   const pct = Math.round((l / MAX_LEVEL) * 100)
 
   const sparkles = useMemo(() =>
@@ -63,31 +64,31 @@ export default function PandaReward({ level = 0 }) {
         </defs>
 
         {/* Ghost */}
-        <g opacity={l === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
+        <g opacity={v === 0 ? 0.12 : 0} stroke="#9ca3af" fill="none" strokeWidth="1.2" strokeDasharray="5 5">
           <ellipse cx="200" cy="175" rx="60" ry="55" />
           <circle cx="200" cy="105" r="42" />
         </g>
 
-        {l >= 50 && (
+        {v >= 50 && (
           <ellipse cx="200" cy="155" rx="165" ry="130" fill="url(#pg)">
             <animate attributeName="rx" values="165;175;165" dur="3s" repeatCount="indefinite" />
           </ellipse>
         )}
 
         {/* 1-5: Body */}
-        <g opacity={op(l, 1, 5)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 1, 5)} style={{ transition: 'all 0.8s' }}>
           <ellipse cx="200" cy="185" rx="62" ry="52" fill={white} stroke={stroke} strokeWidth="1.8" />
           {/* Belly */}
           {colored && <ellipse cx="200" cy="190" rx="38" ry="32" fill="white" opacity="0.3" />}
         </g>
 
         {/* 6-10: Head */}
-        <g opacity={op(l, 6, 10)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 6, 10)} style={{ transition: 'all 0.8s' }}>
           <circle cx="200" cy="108" r="45" fill={white} stroke={stroke} strokeWidth="1.8" />
         </g>
 
         {/* 11-15: Arms + Legs */}
-        <g opacity={op(l, 11, 15)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 11, 15)} style={{ transition: 'all 0.8s' }}>
           {/* Arms */}
           {[{ x: 148, r: -15 }, { x: 252, r: 15 }].map((arm, i) => (
             <g key={`a${i}`}>
@@ -117,7 +118,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 16-20: Ears */}
-        <g opacity={op(l, 16, 20)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 16, 20)} style={{ transition: 'all 0.8s' }}>
           <circle cx="165" cy="75" r="18" fill={black} />
           <circle cx="235" cy="75" r="18" fill={black} />
           {colored && (
@@ -129,7 +130,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 21-25: Nose + mouth */}
-        <g opacity={op(l, 21, 25)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 21, 25)} style={{ transition: 'all 0.8s' }}>
           {/* Nose */}
           <ellipse cx="200" cy="122" rx="6" ry="4.5" fill={colored ? '#1e293b' : '#777'} />
           <circle cx="198" cy="121" r="1.5" fill="white" opacity="0.4" />
@@ -142,7 +143,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 26-30: Eyes (with black patches) */}
-        <g opacity={op(l, 26, 30)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 26, 30)} style={{ transition: 'all 0.8s' }}>
           {[182, 218].map((cx, i) => (
             <g key={i}>
               {/* Black eye patch */}
@@ -158,7 +159,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 36-40: Bamboo + animated munch */}
-        <g opacity={op(l, 36, 40)} style={{ transition: 'all 0.8s' }}>
+        <g opacity={op(v, 36, 40)} style={{ transition: 'all 0.8s' }}>
           {/* Bamboo stalk */}
           <g transform="translate(138, 155)">
             <rect x="-4" y="-40" width="8" height="80" rx="3" fill={colored ? '#86efac' : '#aaa'} />
@@ -181,7 +182,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 41-45: Sparkles + bamboo forest */}
-        <g opacity={op(l, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 41, 45)} style={{ transition: 'opacity 0.8s' }}>
           {sparkles.map((s, i) => (
             <circle key={i} cx={s.x} cy={s.y} r={s.r}
               fill={i % 3 === 0 ? '#86efac' : i % 3 === 1 ? '#fbbf24' : '#f9a8d4'} opacity="0.5">
@@ -199,7 +200,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* 46-49: Hearts */}
-        <g opacity={op(l, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
+        <g opacity={op(v, 46, 49)} style={{ transition: 'opacity 0.8s' }}>
           {[{ x: 50, y: 50, c: '#f472b6', s: 0.9 }, { x: 355, y: 45, c: '#fb7185', s: 0.8 },
             { x: 370, y: 170, c: '#f9a8d4', s: 0.7 }].map((h, i) => (
             <path key={i}
@@ -211,7 +212,7 @@ export default function PandaReward({ level = 0 }) {
         </g>
 
         {/* Level 50: Flower crown + glow */}
-        {l >= 50 && (
+        {v >= 50 && (
           <g filter="url(#pf)">
             {/* Simple crown of flowers */}
             {[170, 185, 200, 215, 230].map((x, i) => {
@@ -235,20 +236,20 @@ export default function PandaReward({ level = 0 }) {
       </svg>
 
       <p className="text-xs text-center font-medium" style={{
-        color: l >= 50 ? '#64748b' : l >= 30 ? '#475569' : '#9ca3af',
+        color: l >= 50 ? '#64748b' : v >= 30 ? '#475569' : '#9ca3af',
       }}>
-        {l === 0 && 'Réponds correctement pour faire apparaître le panda !'}
-        {l >= 1  && l < 6  && 'Un corps tout rond et blanc...'}
-        {l >= 6  && l < 11 && 'Oh ! Une grosse tête adorable !'}
-        {l >= 11 && l < 16 && 'Des pattes noires et potelées !'}
-        {l >= 16 && l < 21 && 'De petites oreilles rondes !'}
-        {l >= 21 && l < 26 && 'Un petit nez et un sourire !'}
-        {l >= 26 && l < 31 && 'Les yeux avec leurs taches noires !'}
-        {l >= 31 && l < 36 && 'Le noir et blanc classique du panda !'}
-        {l >= 36 && l < 41 && 'Il croque son bambou !'}
-        {l >= 41 && l < 46 && 'Une forêt de bambou pousse !'}
-        {l >= 46 && l < 50 && 'Presque légendaire... encore un effort !'}
-        {l >= 50 && '✨ Panda Légendaire ! Maître du bambou ! ✨'}
+        {l >= 50 && `✨ ${badgeTitle || 'Panda'} obtenu ! Maître du bambou ! ✨`}
+        {l < 50 && v === 0 && 'Réponds correctement pour faire apparaître le panda !'}
+        {l < 50 && v >= 1  && v < 6  && 'Un corps tout rond et blanc...'}
+        {l < 50 && v >= 6  && v < 11 && 'Oh ! Une grosse tête adorable !'}
+        {l < 50 && v >= 11 && v < 16 && 'Des pattes noires et potelées !'}
+        {l < 50 && v >= 16 && v < 21 && 'De petites oreilles rondes !'}
+        {l < 50 && v >= 21 && v < 26 && 'Un petit nez et un sourire !'}
+        {l < 50 && v >= 26 && v < 31 && 'Les yeux avec leurs taches noires !'}
+        {l < 50 && v >= 31 && v < 36 && 'Le noir et blanc classique du panda !'}
+        {l < 50 && v >= 36 && v < 41 && 'Il croque son bambou !'}
+        {l < 50 && v >= 41 && v < 46 && 'Une forêt de bambou pousse !'}
+        {l < 50 && v >= 46 && 'Presque légendaire... encore un effort !'}
       </p>
     </div>
   )

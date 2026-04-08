@@ -55,7 +55,7 @@ export default function SessionComplete({ onContinue }) {
         <div className="relative z-10 text-center max-w-md w-full">
           {/* Character display */}
           <div className="mb-6 w-48 h-48 mx-auto">
-            <CharacterReward character={selectedCharacter} level={50} />
+            <CharacterReward character={selectedCharacter} level={50} difficulty={difficultyLevel} />
           </div>
 
           {/* Congratulations */}
