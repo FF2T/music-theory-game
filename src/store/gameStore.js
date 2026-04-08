@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { saveToCloud, loadFromCloud, subscribeToCloud } from '../utils/firebase'
+import { saveToCloud, savePlayerBadges, loadFromCloud, subscribeToCloud } from '../utils/firebase'
 
 const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
@@ -323,9 +323,10 @@ export const useGameStore = create(
               sessionComplete: true,
             }
           })
-          // Sync to cloud
+          // Sync badge to cloud (targeted write)
           const state = get()
-          saveToCloud(state.players, state.playerRecords)
+          const badges = state.playerRecords[currentPlayerId]?.badges
+          if (badges) savePlayerBadges(currentPlayerId, badges)
         } else {
           set({ sessionComplete: true })
         }

@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getDatabase, ref, get, set, onValue } from 'firebase/database'
+import { getDatabase, ref, get, set, update, onValue } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: "AIzaSyAoUFNIEeEYaOR_O5e2gwzsd4i4xFMEW8s",
@@ -23,18 +23,36 @@ function getDb() {
 }
 
 /**
- * Save players and records to Firebase
+ * Save players and records to Firebase using granular updates
+ * to avoid overwriting other devices' changes.
  */
 export async function saveToCloud(players, playerRecords) {
   try {
     const database = getDb()
-    await set(ref(database, 'gameData'), {
-      players,
-      playerRecords,
-      lastUpdated: Date.now(),
-    })
+    const updates = {}
+    updates['gameData/players'] = players
+    updates['gameData/lastUpdated'] = Date.now()
+    // Write each player's records individually so we don't overwrite others
+    for (const [playerId, record] of Object.entries(playerRecords)) {
+      updates[`gameData/playerRecords/${playerId}`] = record
+    }
+    await update(ref(database), updates)
   } catch (e) {
     console.warn('[Firebase] save error:', e.message)
+  }
+}
+
+/**
+ * Save only a specific player's badge (most common write operation).
+ * This is safer than saving everything — avoids overwriting other players' data.
+ */
+export async function savePlayerBadges(playerId, badges) {
+  try {
+    const database = getDb()
+    await set(ref(database, `gameData/playerRecords/${playerId}/badges`), badges)
+    await set(ref(database, 'gameData/lastUpdated'), Date.now())
+  } catch (e) {
+    console.warn('[Firebase] save badge error:', e.message)
   }
 }
 
