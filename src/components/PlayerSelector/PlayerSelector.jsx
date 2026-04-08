@@ -19,6 +19,11 @@ export default function PlayerSelector({ onSelect }) {
   const [pinError, setPinError] = useState(false)
   const [settingPin, setSettingPin] = useState(null) // player id setting new PIN
   const [newPinDigits, setNewPinDigits] = useState(['', '', '', ''])
+  const ADMIN_PIN = '2206'
+  const [authForSettings, setAuthForSettings] = useState(null) // player id needing auth before settings
+  const [authDigits, setAuthDigits] = useState(['', '', '', ''])
+  const [authError, setAuthError] = useState(false)
+  const authRefs = [useRef(), useRef(), useRef(), useRef()]
   const pinRefs = [useRef(), useRef(), useRef(), useRef()]
   const newPinRefs = [useRef(), useRef(), useRef(), useRef()]
 
@@ -84,6 +89,10 @@ export default function PlayerSelector({ onSelect }) {
     if (settingPin) setTimeout(() => newPinRefs[0].current?.focus(), 50)
   }, [settingPin])
 
+  useEffect(() => {
+    if (authForSettings) setTimeout(() => authRefs[0].current?.focus(), 50)
+  }, [authForSettings])
+
   function handleSetPinSubmit(digits) {
     const pin = (digits || newPinDigits).join('')
     if (pin.length === 4) {
@@ -118,6 +127,67 @@ export default function PlayerSelector({ onSelect }) {
     }, 0)
   }
 
+  // Auth for settings modal
+  if (authForSettings) {
+    const player = players.find((p) => p.id === authForSettings)
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center px-3 sm:px-4 py-8 animate-fade-in">
+        <div className="glass rounded-2xl p-6 sm:p-8 max-w-xs w-full text-center">
+          <div className="w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
+            <KeyRound className="w-7 h-7 text-primary-600 dark:text-primary-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+            {player?.name}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+            Entre le code actuel ou le code admin
+          </p>
+
+          <div className="flex justify-center gap-3 mb-4">
+            {authDigits.map((d, i) => (
+              <input
+                key={i}
+                ref={authRefs[i]}
+                type="tel"
+                inputMode="numeric"
+                maxLength={1}
+                value={d}
+                onChange={(e) => handlePinDigit(i, e.target.value, authRefs, authDigits, setAuthDigits, (digits) => {
+                  const entered = digits.join('')
+                  if (entered === player.pin || entered === ADMIN_PIN) {
+                    setAuthForSettings(null)
+                    setAuthDigits(['', '', '', ''])
+                    setSettingPin(player.id)
+                  } else {
+                    setAuthError(true)
+                    setAuthDigits(['', '', '', ''])
+                    setTimeout(() => authRefs[0].current?.focus(), 50)
+                  }
+                })}
+                onKeyDown={(e) => handlePinKeyDown(e, i, authRefs, authDigits, setAuthDigits)}
+                className={[
+                  'w-12 h-14 text-center text-2xl font-bold rounded-xl border-2 bg-white dark:bg-white/5',
+                  'focus:outline-none focus:ring-2 focus:ring-primary-400 transition-all',
+                  authError
+                    ? 'border-red-400 dark:border-red-500 text-red-600'
+                    : 'border-gray-300 dark:border-white/20 text-gray-900 dark:text-white',
+                ].join(' ')}
+              />
+            ))}
+          </div>
+
+          {authError && (
+            <p className="text-sm text-red-500 mb-3 animate-shake">Code incorrect</p>
+          )}
+
+          <Button variant="ghost" size="sm" onClick={() => setAuthForSettings(null)}>
+            Retour
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   // PIN input modal
   if (pinPlayerId) {
     const player = players.find((p) => p.id === pinPlayerId)
@@ -149,7 +219,7 @@ export default function PlayerSelector({ onSelect }) {
                   const pin = entered.join('')
                   if (pin.length === 4) {
                     const p = players.find((pl) => pl.id === pinPlayerId)
-                    if (pin === p.pin) {
+                    if (pin === p.pin || pin === ADMIN_PIN) {
                       warmUpAudio()
                       setCurrentPlayer(pinPlayerId)
                       setPinPlayerId(null)
@@ -292,7 +362,17 @@ export default function PlayerSelector({ onSelect }) {
 
               {/* Settings button (long press / right area) */}
               <button
-                onClick={(e) => { e.stopPropagation(); setSettingPin(player.id) }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (player.pin) {
+                    // Need auth first
+                    setAuthForSettings(player.id)
+                    setAuthDigits(['', '', '', ''])
+                    setAuthError(false)
+                  } else {
+                    setSettingPin(player.id)
+                  }
+                }}
                 className="absolute bottom-1 right-1 p-1 rounded-lg opacity-0 group-hover:opacity-60 hover:!opacity-100 transition-opacity"
                 title="Configurer le code secret"
               >
