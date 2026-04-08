@@ -3,7 +3,6 @@ import { BookOpen, Layers, Zap, Music, Star, Trophy, Lock, Settings as SettingsI
 import { useGameStore, CHARACTERS } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Settings from '../Settings/Settings'
-import Scoreboard from '../Scoreboard/Scoreboard'
 
 const MODE_PASSWORD = '212402'
 
@@ -196,11 +195,6 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
             savedProgress={progress}
           />
         ))}
-      </div>
-
-      {/* Scoreboard */}
-      <div className="w-full max-w-3xl animate-slide-up">
-        <Scoreboard />
       </div>
 
       {/* Reset progress */}

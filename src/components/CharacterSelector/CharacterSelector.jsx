@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react'
 import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerStatus } from '../../store/gameStore'
 import { Button } from '../ui/Button'
+import Scoreboard from '../Scoreboard/Scoreboard'
 
 export default function CharacterSelector({ onSelect }) {
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
@@ -129,9 +130,14 @@ export default function CharacterSelector({ onSelect }) {
       </div>
 
       {/* Confirm */}
-      <Button size="lg" onClick={handleConfirm} className="gap-2">
+      <Button size="lg" onClick={handleConfirm} className="gap-2 mb-10">
         C'est parti !
       </Button>
+
+      {/* Scoreboard */}
+      <div className="w-full max-w-3xl">
+        <Scoreboard />
+      </div>
     </div>
   )
 }
