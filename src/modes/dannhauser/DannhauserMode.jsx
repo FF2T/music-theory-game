@@ -3,7 +3,7 @@ import { BookOpen, Mic, MicOff, RotateCcw, ArrowLeft } from 'lucide-react'
 import StaffDisplay from '../../components/StaffDisplay/StaffDisplay'
 import VirtualPiano from '../../components/VirtualPiano/VirtualPiano'
 import { useAudio } from '../../hooks/useAudio'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore, DIFFICULTY_CONFIGS } from '../../store/gameStore'
 import { EXERCISES, bassToTreble, vexKeyToFrench, vexKeyToMidi, displayNoteName } from './exercises'
 import { sampleN } from '../../utils/musicTheory'
 
@@ -121,6 +121,7 @@ function useSpeechRecognition(onResult, active) {
 
 export default function DannhauserMode() {
   const difficultyLevel = useGameStore(s => s.difficultyLevel)
+  const setDifficulty = useGameStore(s => s.setDifficulty)
   const isNormalOrAbove = difficultyLevel !== 'facile'
 
   // Phase: select | bass | transition | treble | complete
@@ -320,6 +321,40 @@ export default function DannhauserMode() {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Choisis un exercice de lecture de notes en cle de Fa
           </p>
+        </div>
+
+        {/* Difficulty selector */}
+        <div className="flex justify-center gap-2 mb-8">
+          {['facile', 'normal'].map(key => {
+            const config = DIFFICULTY_CONFIGS[key]
+            const isSelected = difficultyLevel === key
+            return (
+              <button
+                key={key}
+                onClick={() => setDifficulty(key)}
+                className={[
+                  'flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 transition-all duration-200',
+                  'hover:shadow-md active:scale-95',
+                  isSelected
+                    ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/20 shadow-sm'
+                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20',
+                ].join(' ')}
+              >
+                <span className="text-lg">{config.emoji}</span>
+                <div className="text-left">
+                  <span className={[
+                    'text-sm font-semibold block',
+                    isSelected ? 'text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300',
+                  ].join(' ')}>
+                    {config.label}
+                  </span>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                    {key === 'facile' ? 'Cle de Fa uniquement' : 'Fa puis Sol (memes positions)'}
+                  </span>
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
