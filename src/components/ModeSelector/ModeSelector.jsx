@@ -72,7 +72,7 @@ function DifficultyStars({ level }) {
 
 function ModeCard({ mode, onSelect, savedProgress }) {
   const Icon = mode.icon
-  const progress = savedProgress[mode.id]
+  const progress = savedProgress[mode.id] || { totalAnswered: 0, correctAnswers: 0, bestStreak: 0 }
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const charInfo = CHARACTERS.find((c) => c.id === selectedCharacter)
   const accuracy = progress.totalAnswered > 0
