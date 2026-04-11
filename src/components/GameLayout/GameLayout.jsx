@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { ChevronLeft, Volume2, VolumeX, Flame, Settings as SettingsIcon } from 'lucide-react'
-import { useGameStore } from '../../store/gameStore'
+import { useGameStore, getProgress } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Settings from '../Settings/Settings'
 
@@ -60,8 +60,9 @@ export default function GameLayout({ children, onExit }) {
   const isDark = useGameStore((s) => s.theme === 'dark')
 
   const unicornLevel = useGameStore((s) => {
-    if (s.currentMode === 'beginner') return s.progress.beginner.unicornLevel ?? 0
-    if (s.currentMode === 'intermediate') return s.progress.intermediate?.unicornLevel ?? 0
+    const prog = getProgress(s)
+    if (s.currentMode === 'beginner') return prog.beginner.unicornLevel ?? 0
+    if (s.currentMode === 'intermediate') return prog.intermediate?.unicornLevel ?? 0
     return 0
   })
 
@@ -79,6 +80,7 @@ export default function GameLayout({ children, onExit }) {
     beginner:     'Lecture de notes',
     intermediate: 'Rock Star',
     advanced:     'Légende vivante',
+    dannhauser:   'Dannhauser',
   }[currentMode] ?? ''
 
   function handleExit() {

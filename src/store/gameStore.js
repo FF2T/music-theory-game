@@ -6,6 +6,7 @@ const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
   intermediate: { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['intervals'] },
   advanced:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['greek-modes'] },
+  dannhauser:   { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['152', '153'] },
 }
 
 export const CHARACTERS = [
@@ -211,6 +212,25 @@ export function formatTime(ms) {
   return `${minutes}min ${seconds.toString().padStart(2, '0')}s`
 }
 
+/** Return the progress object for the current player (or initialProgress as fallback) */
+export function getProgress(state) {
+  const pid = state.currentPlayerId
+  return (pid && state.playerProgress?.[pid]) || initialProgress
+}
+
+/** Return a new playerProgress with the current player's progress updated */
+function setPlayerProgress(state, modeUpdates) {
+  const pid = state.currentPlayerId
+  if (!pid) return {}
+  const prev = state.playerProgress?.[pid] || initialProgress
+  return {
+    playerProgress: {
+      ...state.playerProgress,
+      [pid]: { ...prev, ...modeUpdates },
+    },
+  }
+}
+
 export const useGameStore = create(
   persist(
     (set, get) => ({
@@ -262,21 +282,35 @@ export const useGameStore = create(
       sessionStartTime: null,
       sessionComplete: false,
 
-      startBeginnerSession: () => set((s) => ({
-        sessionScore: 0,
-        sessionAnswers: 0,
-        sessionCorrect: 0,
-        currentStreak: 0,
-        lastFeedback: null,
-        sessionStartTime: Date.now(),
-        sessionComplete: false,
-        progress: {
-          ...s.progress,
-          beginner: { ...s.progress.beginner, unicornLevel: 0 },
-        },
-      })),
+      startBeginnerSession: () => set((s) => {
+        const prog = getProgress(s)
+        return {
+          sessionScore: 0,
+          sessionAnswers: 0,
+          sessionCorrect: 0,
+          currentStreak: 0,
+          lastFeedback: null,
+          sessionStartTime: Date.now(),
+          sessionComplete: false,
+          ...setPlayerProgress(s, { beginner: { ...prog.beginner, unicornLevel: 0 } }),
+        }
+      }),
 
-      startIntermediateSession: () => set((s) => ({
+      startIntermediateSession: () => set((s) => {
+        const prog = getProgress(s)
+        return {
+          sessionScore: 0,
+          sessionAnswers: 0,
+          sessionCorrect: 0,
+          currentStreak: 0,
+          lastFeedback: null,
+          sessionStartTime: Date.now(),
+          sessionComplete: false,
+          ...setPlayerProgress(s, { intermediate: { ...prog.intermediate, unicornLevel: 0 } }),
+        }
+      }),
+
+      startDannhauserSession: () => set({
         sessionScore: 0,
         sessionAnswers: 0,
         sessionCorrect: 0,
@@ -284,11 +318,7 @@ export const useGameStore = create(
         lastFeedback: null,
         sessionStartTime: Date.now(),
         sessionComplete: false,
-        progress: {
-          ...s.progress,
-          intermediate: { ...s.progress.intermediate, unicornLevel: 0 },
-        },
-      })),
+      }),
 
       // ── Badge saving ────────────────────────────────────────────────────
       saveBadge: () => {
@@ -333,8 +363,8 @@ export const useGameStore = create(
         }
       },
 
-      // ── Persistent progress ──────────────────────────────────────────────
-      progress: initialProgress,
+      // ── Persistent progress (per player) ─────────────────────────────────
+      playerProgress: {},
 
       // ── Audio preference ────────────────────────────────────────────────
       audioEnabled: true,
@@ -372,11 +402,13 @@ export const useGameStore = create(
 
       // ── Actions ──────────────────────────────────────────────────────────
       recordAnswer: ({ correct, exerciseId, responseTimeMs = 0 }) => {
-        const { currentMode, progress, currentStreak, penaltyValue, difficultyLevel } = get()
+        const state = get()
+        const { currentMode, currentStreak, penaltyValue, difficultyLevel } = state
         if (!currentMode) return
 
+        const progress = getProgress(state)
         const newStreak    = correct ? currentStreak + 1 : 0
-        const modeProgress = progress[currentMode]
+        const modeProgress = progress[currentMode] || initialProgress[currentMode] || { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0 }
         const bestStreak   = Math.max(modeProgress.bestStreak, newStreak)
 
         const points = correct ? 10 + Math.min(newStreak - 1, 5) * 5 : 0
@@ -404,8 +436,7 @@ export const useGameStore = create(
           sessionCorrect: s.sessionCorrect + (correct ? 1 : 0),
           currentStreak:  newStreak,
           lastFeedback:   correct ? 'correct' : 'wrong',
-          progress: {
-            ...s.progress,
+          ...setPlayerProgress(s, {
             [currentMode]: {
               ...modeProgress,
               totalAnswered: modeProgress.totalAnswered + 1,
@@ -414,7 +445,7 @@ export const useGameStore = create(
               bestStreak: bestStreak,
               ...(hasCharacterProgression ? { unicornLevel } : {}),
             },
-          },
+          }),
         }))
 
         // Clear feedback after 1.2s
@@ -436,15 +467,13 @@ export const useGameStore = create(
         sessionComplete: false,
       }),
 
-      resetUnicorn: () => set((s) => ({
-        progress: {
-          ...s.progress,
-          beginner: { ...s.progress.beginner, unicornLevel: 0 },
-        },
-      })),
+      resetUnicorn: () => set((s) => {
+        const prog = getProgress(s)
+        return setPlayerProgress(s, { beginner: { ...prog.beginner, unicornLevel: 0 } })
+      }),
 
       resetAllProgress: () => {
-        set({ progress: initialProgress, noteErrors: {}, playerRecords: {} })
+        set({ playerProgress: {}, noteErrors: {}, playerRecords: {} })
         saveToCloud(get().players, {})
       },
 
@@ -520,7 +549,7 @@ export const useGameStore = create(
     }),
     {
       name: 'musicmaster-progress',
-      version: 1,
+      version: 2,
       migrate: (persisted, version) => {
         if (version === 0 || version === undefined) {
           // Migrate badges from flat { time, difficulty, date } to nested { [difficulty]: { time, date } }
@@ -533,10 +562,23 @@ export const useGameStore = create(
             }
           }
         }
+        if (version < 2) {
+          // Migrate global progress → per-player progress
+          // Old progress was shared; assign it to the current player if one is set
+          if (persisted.progress && !persisted.playerProgress) {
+            const pid = persisted.currentPlayerId
+            if (pid) {
+              persisted.playerProgress = { [pid]: persisted.progress }
+            } else {
+              persisted.playerProgress = {}
+            }
+            delete persisted.progress
+          }
+        }
         return persisted
       },
       partialize: (s) => ({
-        progress:          s.progress,
+        playerProgress:    s.playerProgress,
         audioEnabled:      s.audioEnabled,
         theme:             s.theme,
         penaltyValue:      s.penaltyValue,

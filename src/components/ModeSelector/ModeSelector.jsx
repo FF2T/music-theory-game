@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BookOpen, Layers, Zap, Music, Star, Trophy, Lock, Settings as SettingsIcon, LogOut } from 'lucide-react'
-import { useGameStore, CHARACTERS } from '../../store/gameStore'
+import { useGameStore, CHARACTERS, getProgress } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Settings from '../Settings/Settings'
 
@@ -28,6 +28,18 @@ const MODES = [
     glow: 'hover:shadow-blue-500/20',
     description: 'Identifie les intervalles sur la portée et à l\'oreille',
     topics: ['Intervalles', 'Tierces & Quintes', 'Ascendant & Descendant', '50 points = Badge'],
+    difficulty: 2,
+    locked: false,
+  },
+  {
+    id: 'dannhauser',
+    label: 'Dannhauser',
+    icon: BookOpen,
+    color: 'from-amber-600 to-orange-700',
+    border: 'border-amber-500/30 hover:border-amber-400/60',
+    glow: 'hover:shadow-amber-500/20',
+    description: 'Lecture de notes — Solfège des Solfèges (clés de Fa et Sol)',
+    topics: ['Exercices 152-153', 'Clé de Fa → Sol', 'Micro vocal', 'Piano interactif'],
     difficulty: 2,
     locked: false,
   },
@@ -138,7 +150,7 @@ function ModeCard({ mode, onSelect, savedProgress }) {
 
 export default function ModeSelector({ onSelectMode, onChangePlayer }) {
   const [showSettings, setShowSettings] = useState(false)
-  const progress = useGameStore((s) => s.progress)
+  const progress = useGameStore(getProgress)
   const resetAll = useGameStore((s) => s.resetAllProgress)
   const currentPlayerId = useGameStore((s) => s.currentPlayerId)
   const players = useGameStore((s) => s.players)
@@ -186,7 +198,7 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
       </div>
 
       {/* Mode cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl animate-slide-up mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl animate-slide-up mb-10">
         {MODES.map((mode) => (
           <ModeCard
             key={mode.id}

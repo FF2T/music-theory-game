@@ -127,6 +127,15 @@ export function drawNoteSequence(container, vexKeys, clef = 'treble', noteStates
   const notes = vexKeys.map((key, i) => {
     const state = noteStates[i] || 'upcoming'
     const color = palette[state] || palette.upcoming
+
+    // Handle rests
+    if (key === 'rest') {
+      const restKey = clef === 'bass' ? 'd/3' : 'b/4'
+      const note = new StaveNote({ keys: [restKey], duration: 'qr', clef })
+      note.setStyle({ fillStyle: color, strokeStyle: color })
+      return note
+    }
+
     const note  = new StaveNote({ keys: [key], duration: 'q', clef })
 
     note.setStyle({ fillStyle: color, strokeStyle: color })
@@ -134,8 +143,11 @@ export function drawNoteSequence(container, vexKeys, clef = 'treble', noteStates
     if (note.setFlagStyle)  note.setFlagStyle({ fillStyle: color, strokeStyle: color })
     if (note.setLedgerLineStyle) note.setLedgerLineStyle({ fillStyle: color, strokeStyle: color })
 
-    if (key.includes('#')) note.addModifier(new Accidental('#'), 0)
-    if (key.includes('b') && key[0] !== 'b') note.addModifier(new Accidental('b'), 0)
+    // Parse accidentals (handles Bb correctly: 'bb/2' → letter 'b', acc 'b')
+    const letterPart = key.split('/')[0]
+    const acc = letterPart.slice(1)
+    if (acc === '##' || acc === '#') note.addModifier(new Accidental(acc), 0)
+    else if (acc === 'bb' || acc === 'b') note.addModifier(new Accidental(acc), 0)
 
     return note
   })
