@@ -4,7 +4,7 @@ import StaffDisplay from '../../components/StaffDisplay/StaffDisplay'
 import VirtualPiano from '../../components/VirtualPiano/VirtualPiano'
 import CharacterReward from '../../components/CharacterReward/CharacterReward'
 import { useAudio } from '../../hooks/useAudio'
-import { useGameStore, DIFFICULTY_CONFIGS } from '../../store/gameStore'
+import { useGameStore, DIFFICULTY_CONFIGS, getProgress } from '../../store/gameStore'
 import { sampleN } from '../../utils/musicTheory'
 
 const NOTES_PER_STAFF = 4
@@ -222,7 +222,7 @@ export default function BeginnerMode() {
 
   const recordAnswer = useGameStore((s) => s.recordAnswer)
   const recordNoteError = useGameStore((s) => s.recordNoteError)
-  const unicornLevel = useGameStore((s) => s.progress.beginner.unicornLevel ?? 0)
+  const unicornLevel = useGameStore((s) => getProgress(s).beginner.unicornLevel ?? 0)
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const sessionComplete = useGameStore((s) => s.sessionComplete)
   const { playFailure, playNote } = useAudio()

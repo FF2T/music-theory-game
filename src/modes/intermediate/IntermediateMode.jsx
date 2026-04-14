@@ -4,7 +4,7 @@ import StaffDisplay from '../../components/StaffDisplay/StaffDisplay'
 import CharacterReward from '../../components/CharacterReward/CharacterReward'
 import { Button } from '../../components/ui/Button'
 import { useAudio } from '../../hooks/useAudio'
-import { useGameStore, INTERVAL_DIFFICULTY_CONFIGS, DIFFICULTY_CONFIGS } from '../../store/gameStore'
+import { useGameStore, INTERVAL_DIFFICULTY_CONFIGS, DIFFICULTY_CONFIGS, getProgress } from '../../store/gameStore'
 import {
   INTERVALS,
   TREBLE_NOTES,
@@ -132,7 +132,7 @@ export default function IntermediateMode() {
   const [played, setPlayed] = useState(false)
 
   const recordAnswer = useGameStore((s) => s.recordAnswer)
-  const unicornLevel = useGameStore((s) => s.progress.intermediate.unicornLevel ?? 0)
+  const unicornLevel = useGameStore((s) => getProgress(s).intermediate.unicornLevel ?? 0)
   const selectedCharacter = useGameStore((s) => s.selectedCharacter)
   const sessionComplete = useGameStore((s) => s.sessionComplete)
   const { playFailure, playNote, playMelody } = useAudio()
