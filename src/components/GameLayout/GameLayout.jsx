@@ -80,7 +80,6 @@ export default function GameLayout({ children, onExit }) {
     beginner:     'Lecture de notes',
     intermediate: 'Rock Star',
     advanced:     'Légende vivante',
-    dannhauser:   'Dannhauser',
   }[currentMode] ?? ''
 
   function handleExit() {

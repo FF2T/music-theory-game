@@ -32,18 +32,6 @@ const MODES = [
     locked: false,
   },
   {
-    id: 'dannhauser',
-    label: 'Dannhauser',
-    icon: BookOpen,
-    color: 'from-amber-600 to-orange-700',
-    border: 'border-amber-500/30 hover:border-amber-400/60',
-    glow: 'hover:shadow-amber-500/20',
-    description: 'Lecture de notes — Solfège des Solfèges (clés de Fa et Sol)',
-    topics: ['Exercices 152-153', 'Clé de Fa → Sol', 'Micro vocal', 'Piano interactif'],
-    difficulty: 2,
-    locked: false,
-  },
-  {
     id: 'advanced',
     label: 'Légende vivante',
     icon: Zap,

@@ -6,7 +6,6 @@ const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
   intermediate: { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['intervals'] },
   advanced:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['greek-modes'] },
-  dannhauser:   { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['152', '153'] },
 }
 
 export const CHARACTERS = [
@@ -308,16 +307,6 @@ export const useGameStore = create(
           sessionComplete: false,
           ...setPlayerProgress(s, { intermediate: { ...prog.intermediate, unicornLevel: 0 } }),
         }
-      }),
-
-      startDannhauserSession: () => set({
-        sessionScore: 0,
-        sessionAnswers: 0,
-        sessionCorrect: 0,
-        currentStreak: 0,
-        lastFeedback: null,
-        sessionStartTime: Date.now(),
-        sessionComplete: false,
       }),
 
       // ── Badge saving ────────────────────────────────────────────────────

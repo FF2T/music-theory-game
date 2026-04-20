@@ -8,13 +8,11 @@ import GameLayout from './components/GameLayout/GameLayout'
 import BeginnerMode from './modes/beginner/BeginnerMode'
 import IntermediateMode from './modes/intermediate/IntermediateMode'
 import AdvancedMode from './modes/advanced/AdvancedMode'
-import DannhauserMode from './modes/dannhauser/DannhauserMode'
 
 const MODES = {
   beginner:     BeginnerMode,
   intermediate: IntermediateMode,
   advanced:     AdvancedMode,
-  dannhauser:   DannhauserMode,
 }
 
 export default function App() {
