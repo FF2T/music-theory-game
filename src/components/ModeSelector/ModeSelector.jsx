@@ -223,6 +223,9 @@ export default function ModeSelector({ onSelectMode, onChangePlayer }) {
         </Button>
       </div>
 
+      {/* Version */}
+      <p className="mt-6 text-xs text-gray-300 dark:text-gray-700">v{APP_VERSION}</p>
+
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
     </div>
   )
