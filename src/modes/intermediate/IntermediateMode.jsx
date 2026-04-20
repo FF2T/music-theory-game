@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Layers, Timer, Play } from 'lucide-react'
 import StaffDisplay from '../../components/StaffDisplay/StaffDisplay'
 import CharacterReward from '../../components/CharacterReward/CharacterReward'
@@ -91,16 +91,25 @@ function panelStyle() {
 
 // ── Chrono hook ──────────────────────────────────────────────────────────────
 
-function useChrono(key) {
-  const [start] = useState(() => Date.now())
-  const [now, setNow] = useState(Date.now)
+function useChrono(running) {
+  const [elapsed, setElapsed] = useState(0)
+  const startRef = useRef(Date.now())
+
   useEffect(() => {
-    if (key === false) return
-    const id = setInterval(() => setNow(Date.now()), 100)
+    if (!running) {
+      setElapsed(0)
+      startRef.current = Date.now()
+      return
+    }
+    startRef.current = Date.now()
+    setElapsed(0)
+    const id = setInterval(() => {
+      setElapsed((Date.now() - startRef.current) / 1000)
+    }, 100)
     return () => clearInterval(id)
-  }, [key])
-  const elapsed = (now - start) / 1000
-  return { elapsed: key === false ? 0 : elapsed, startTime: start }
+  }, [running])
+
+  return { elapsed, startTime: startRef.current }
 }
 
 function useSessionTimer() {
