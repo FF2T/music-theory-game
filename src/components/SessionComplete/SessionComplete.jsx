@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Trophy, Star, Crown, Gauge, ArrowRight } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus, getBadgeTitle } from '../../store/gameStore'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, formatTime, getPlayerStatus, getBadgeTitle, getBadgeKey } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import CharacterReward from '../CharacterReward/CharacterReward'
 
@@ -23,7 +23,7 @@ export default function SessionComplete({ onContinue }) {
   const player = players.find((p) => p.id === currentPlayerId)
   const charInfo = CHARACTERS.find((c) => c.id === selectedCharacter)
   const diffConfig = DIFFICULTY_CONFIGS[difficultyLevel] || DIFFICULTY_CONFIGS.normal
-  const badgeKey = currentMode === 'intermediate' ? 'intervalBadges' : 'badges'
+  const badgeKey = getBadgeKey(currentMode)
 
   // Check legend / race pilot status for current difficulty
   const allBadges = playerRecords[currentPlayerId]?.[badgeKey] || {}

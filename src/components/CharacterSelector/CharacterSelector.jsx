@@ -1,5 +1,5 @@
 import { Star, ArrowLeft } from 'lucide-react'
-import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerStatus } from '../../store/gameStore'
+import { useGameStore, CHARACTERS, DIFFICULTY_CONFIGS, getBadgeTitle, getPlayerStatus, getBadgeKey } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import Scoreboard from '../Scoreboard/Scoreboard'
 
@@ -11,7 +11,7 @@ export default function CharacterSelector({ onSelect, onBack, mode = 'beginner' 
   const currentPlayerId = useGameStore((s) => s.currentPlayerId)
   const playerRecords = useGameStore((s) => s.playerRecords)
 
-  const badgeKey = mode === 'intermediate' ? 'intervalBadges' : 'badges'
+  const badgeKey = getBadgeKey(mode)
 
   // Show which characters already have badges for this player at selected difficulty
   const allBadges = playerRecords[currentPlayerId]?.[badgeKey] || {}

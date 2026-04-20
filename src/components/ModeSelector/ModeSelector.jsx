@@ -38,10 +38,10 @@ const MODES = [
     color: 'from-violet-600 to-purple-700',
     border: 'border-violet-500/30 hover:border-violet-400/60',
     glow: 'hover:shadow-violet-500/20',
-    description: 'Module en cours de développement',
-    topics: ['7 Modes grecs', 'Accords 7e & 9e', 'Grille blues 12 bars', 'Harmonie avancée'],
+    description: 'Identifie la qualité d\'un accord à l\'oreille',
+    topics: ['Majeur', 'Mineur', 'Diminué', 'Augmenté'],
     difficulty: 3,
-    locked: true,
+    locked: false,
   },
 ]
 
@@ -97,7 +97,7 @@ function ModeCard({ mode, onSelect, savedProgress }) {
           }
         </div>
         <div className="flex items-center gap-2">
-          {mode.id === 'beginner' && charInfo && (
+          {(mode.id === 'beginner' || mode.id === 'intermediate' || mode.id === 'advanced') && charInfo && (
             <span className="text-lg" title={charInfo.label}>{charInfo.emoji}</span>
           )}
           <DifficultyStars level={mode.difficulty} />

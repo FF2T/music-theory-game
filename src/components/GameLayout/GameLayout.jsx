@@ -61,8 +61,9 @@ export default function GameLayout({ children, onExit }) {
 
   const unicornLevel = useGameStore((s) => {
     const prog = getProgress(s)
-    if (s.currentMode === 'beginner') return prog.beginner.unicornLevel ?? 0
+    if (s.currentMode === 'beginner') return prog.beginner?.unicornLevel ?? 0
     if (s.currentMode === 'intermediate') return prog.intermediate?.unicornLevel ?? 0
+    if (s.currentMode === 'advanced') return prog.advanced?.unicornLevel ?? 0
     return 0
   })
 

@@ -5,7 +5,7 @@ import { saveToCloud, savePlayerBadges, loadFromCloud, subscribeToCloud } from '
 const initialProgress = {
   beginner:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['note-reading'] },
   intermediate: { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['intervals'] },
-  advanced:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unlockedExercises: ['greek-modes'] },
+  advanced:     { totalAnswered: 0, correctAnswers: 0, streak: 0, bestStreak: 0, unicornLevel: 0, unlockedExercises: ['chord-quality'] },
 }
 
 export const CHARACTERS = [
@@ -124,6 +124,45 @@ export const INTERVAL_DIFFICULTY_CONFIGS = {
   },
 }
 
+export const CHORD_DIFFICULTY_CONFIGS = {
+  facile: {
+    label: 'Facile', emoji: '\u{1F331}', stars: 1,
+    description: 'Majeur et mineur uniquement',
+    chords: ['maj', 'min'],
+    autoPlay: true,
+    rootRange: 'narrow',
+    timeThresholds: [6, 18],
+    penaltyMultiplier: 0.5,
+  },
+  normal: {
+    label: 'Normal', emoji: '\u{1F3B5}', stars: 2,
+    description: 'Majeur, mineur, diminué, augmenté',
+    chords: ['maj', 'min', 'dim', 'aug'],
+    autoPlay: true,
+    rootRange: 'narrow',
+    timeThresholds: [4, 12],
+    penaltyMultiplier: 1,
+  },
+  difficile: {
+    label: 'Difficile', emoji: '\u{1F525}', stars: 3,
+    description: 'Les 4 accords, plus rapide',
+    chords: ['maj', 'min', 'dim', 'aug'],
+    autoPlay: false,
+    rootRange: 'wide',
+    timeThresholds: [3, 8],
+    penaltyMultiplier: 1.5,
+  },
+  expert: {
+    label: 'Expert', emoji: '\u{1F916}', stars: 4,
+    description: 'Les 4 accords, tempo très rapide',
+    chords: ['maj', 'min', 'dim', 'aug'],
+    autoPlay: false,
+    rootRange: 'wide',
+    timeThresholds: [2, 6],
+    penaltyMultiplier: 2,
+  },
+}
+
 const RACE_PILOT_THRESHOLD_MS = 6 * 60 * 1000 // 6 minutes
 
 // Badge titles vary by difficulty – each character earns a different name
@@ -148,6 +187,13 @@ export const BADGE_TITLES = {
 
 export function getBadgeTitle(characterId, difficulty) {
   return BADGE_TITLES[difficulty]?.[characterId] || CHARACTERS.find(c => c.id === characterId)?.label || characterId
+}
+
+/** Per-mode badge bucket in playerRecords */
+export function getBadgeKey(mode) {
+  if (mode === 'intermediate') return 'intervalBadges'
+  if (mode === 'advanced')     return 'chordBadges'
+  return 'badges'
 }
 
 /**
@@ -309,12 +355,26 @@ export const useGameStore = create(
         }
       }),
 
+      startAdvancedSession: () => set((s) => {
+        const prog = getProgress(s)
+        return {
+          sessionScore: 0,
+          sessionAnswers: 0,
+          sessionCorrect: 0,
+          currentStreak: 0,
+          lastFeedback: null,
+          sessionStartTime: Date.now(),
+          sessionComplete: false,
+          ...setPlayerProgress(s, { advanced: { ...prog.advanced, unicornLevel: 0 } }),
+        }
+      }),
+
       // ── Badge saving ────────────────────────────────────────────────────
       saveBadge: () => {
         const { currentPlayerId, selectedCharacter, difficultyLevel, currentMode, sessionStartTime, playerRecords } = get()
         if (!currentPlayerId || !sessionStartTime) return
 
-        const badgeKey = currentMode === 'intermediate' ? 'intervalBadges' : 'badges'
+        const badgeKey = getBadgeKey(currentMode)
         const timeMs = Date.now() - sessionStartTime
         const normalised = normaliseBadgeEntry(playerRecords[currentPlayerId]?.[badgeKey]?.[selectedCharacter])
         const existing = normalised[difficultyLevel]
@@ -346,7 +406,11 @@ export const useGameStore = create(
           // Sync to cloud (targeted write for the specific badge set)
           const state = get()
           const record = state.playerRecords[currentPlayerId]
-          if (record) savePlayerBadges(currentPlayerId, { badges: record.badges, intervalBadges: record.intervalBadges })
+          if (record) savePlayerBadges(currentPlayerId, {
+            badges: record.badges,
+            intervalBadges: record.intervalBadges,
+            chordBadges: record.chordBadges,
+          })
         } else {
           set({ sessionComplete: true })
         }
@@ -414,7 +478,7 @@ export const useGameStore = create(
           else if (responseTimeMs <= slowThreshold * 1000) unicornDelta = 1
           else unicornDelta = 0
         }
-        const hasCharacterProgression = currentMode === 'beginner' || currentMode === 'intermediate'
+        const hasCharacterProgression = currentMode === 'beginner' || currentMode === 'intermediate' || currentMode === 'advanced'
         const unicornLevel = hasCharacterProgression
           ? Math.max(0, Math.min(50, prevUnicorn + unicornDelta))
           : prevUnicorn
@@ -491,12 +555,14 @@ export const useGameStore = create(
               ...pData,
               badges: mergeBadges({}, pData.badges || {}),
               intervalBadges: mergeBadges({}, pData.intervalBadges || {}),
+              chordBadges: mergeBadges({}, pData.chordBadges || {}),
             }
           } else {
             mergedRecords[playerId] = {
               ...mergedRecords[playerId],
               badges: mergeBadges(mergedRecords[playerId].badges || {}, pData.badges || {}),
               intervalBadges: mergeBadges(mergedRecords[playerId].intervalBadges || {}, pData.intervalBadges || {}),
+              chordBadges: mergeBadges(mergedRecords[playerId].chordBadges || {}, pData.chordBadges || {}),
             }
           }
         }
@@ -522,12 +588,14 @@ export const useGameStore = create(
                 ...pData,
                 badges: mergeBadges({}, pData.badges || {}),
                 intervalBadges: mergeBadges({}, pData.intervalBadges || {}),
+                chordBadges: mergeBadges({}, pData.chordBadges || {}),
               }
             } else {
               mergedRecords[playerId] = {
                 ...mergedRecords[playerId],
                 badges: mergeBadges(mergedRecords[playerId].badges || {}, pData.badges || {}),
                 intervalBadges: mergeBadges(mergedRecords[playerId].intervalBadges || {}, pData.intervalBadges || {}),
+                chordBadges: mergeBadges(mergedRecords[playerId].chordBadges || {}, pData.chordBadges || {}),
               }
             }
           }

@@ -52,6 +52,7 @@ export async function savePlayerBadges(playerId, badgeData) {
     const updates = { 'gameData/lastUpdated': Date.now() }
     if (badgeData.badges) updates[`gameData/playerRecords/${playerId}/badges`] = badgeData.badges
     if (badgeData.intervalBadges) updates[`gameData/playerRecords/${playerId}/intervalBadges`] = badgeData.intervalBadges
+    if (badgeData.chordBadges) updates[`gameData/playerRecords/${playerId}/chordBadges`] = badgeData.chordBadges
     await update(ref(database), updates)
   } catch (e) {
     console.warn('[Firebase] save badge error:', e.message)

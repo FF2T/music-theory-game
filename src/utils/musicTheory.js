@@ -159,6 +159,8 @@ export function buildScale(rootMidi, steps) {
 export const CHORD_TYPES = {
   maj:    { name: 'Majeur',        intervals: [0, 4, 7],         symbol: '' },
   min:    { name: 'Mineur',        intervals: [0, 3, 7],         symbol: 'm' },
+  dim:    { name: 'Diminué',       intervals: [0, 3, 6],         symbol: 'dim' },
+  aug:    { name: 'Augmenté',      intervals: [0, 4, 8],         symbol: 'aug' },
   dom7:   { name: 'Dominante 7',   intervals: [0, 4, 7, 10],     symbol: '7' },
   maj7:   { name: 'Majeur 7',      intervals: [0, 4, 7, 11],     symbol: 'M7' },
   min7:   { name: 'Mineur 7',      intervals: [0, 3, 7, 10],     symbol: 'm7' },
