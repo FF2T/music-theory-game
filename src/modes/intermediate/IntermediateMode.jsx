@@ -10,7 +10,6 @@ import {
   TREBLE_NOTES,
   BASS_NOTES,
   intervalUpperNote,
-  sampleN,
   pickRandom,
 } from '../../utils/musicTheory'
 
@@ -44,7 +43,8 @@ function pickIntervalChoices(pool, target, count) {
     Math.abs(a.semitones - target.semitones) - Math.abs(b.semitones - target.semitones)
   )
   const picked = sorted.slice(0, count - 1)
-  return sampleN([target, ...picked], count)
+  // Display choices in ascending semitone order (m2 → octave)
+  return [target, ...picked].sort((a, b) => a.semitones - b.semitones)
 }
 
 function generateIntervalSequence(clef, difficultyLevel) {
