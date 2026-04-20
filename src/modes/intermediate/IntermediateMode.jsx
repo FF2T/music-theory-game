@@ -201,14 +201,6 @@ export default function IntermediateMode() {
       recordAnswer({ correct: isCorrect, exerciseId: 'intervals', responseTimeMs })
 
       if (isCorrect) {
-        // Play the interval melodically
-        const rootMidi = current.root.midi
-        const upperMidi = current.upper.midi
-        if (current.descending) {
-          playMelody([rootMidi + current.target.semitones, rootMidi], 120)
-        } else {
-          playMelody([rootMidi, upperMidi], 120)
-        }
         setWrongAnswer(null)
 
         const newResults = [...results, 'correct']
@@ -235,7 +227,7 @@ export default function IntermediateMode() {
         }, 800)
       }
     },
-    [busy, sessionComplete, currentIdx, results, current, startTime, recordAnswer, playFailure, playMelody, startNext],
+    [busy, sessionComplete, currentIdx, results, current, startTime, recordAnswer, playFailure, startNext],
   )
 
   // ── Derived ──
